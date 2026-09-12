@@ -1,0 +1,7 @@
+[
+  {"name": "mock", "api": "mock", "base_url": "", "model": "mock", "auth_env": ""},
+  {"name": "orcarouter-deepseek-free", "api": "openai_compatible", "base_url": "https://api.orcarouter.ai/v1", "model": "deepseek/deepseek-v4-flash-free", "auth_env": "ORCA_API_KEY"},
+  {"name": "orcarouter-glm-free", "api": "openai_compatible", "base_url": "https://api.orcarouter.ai/v1", "model": "z-ai/glm-5.3-flash-free", "auth_env": "ORCA_API_KEY"},
+  {"name": "deepseek", "api": "openai_compatible", "base_url": "https://api.deepseek.com/v1", "model": "deepseek-v4-flash", "auth_env": "DEEPSEEK_API_KEY"},
+  {"name": "anthropic", "api": "anthropic", "base_url": "https://api.anthropic.com", "model": "claude-opus-5", "auth_env": "ANTHROPIC_API_KEY"}
+]
