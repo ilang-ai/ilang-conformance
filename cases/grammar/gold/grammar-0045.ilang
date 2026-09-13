@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[GET|src=https://news.example.cn/tech]=>[EXTC|typ=title_and_link]=>[DEDU]=>[SORT|srt=-published_at]=>[OUT|fmt=md]

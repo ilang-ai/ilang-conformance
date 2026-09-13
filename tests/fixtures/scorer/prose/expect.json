@@ -1,0 +1,207 @@
+{
+  "description": "Prose answers. grammar: prose with embedded tokens (no payload), I-Lang inside a text fence (bare scan finds it), prose inside an ilang fence (raw-mode E300), a bare chain between prose lines. exec: a declaration after a label, a canary mention, a > quote, key-value prose: all fail_missing. judge: prose and a malformed block, all padded.",
+  "exit": 0,
+  "run": "mock-prose-20260913-080100",
+  "score": {
+    "model": "mock",
+    "summary": {
+      "degraded_count": 0,
+      "error_count": 0,
+      "exec_pass_rate": 0.0,
+      "grammar_pass_rate": 0.5,
+      "judge_schema": 0.0,
+      "l1": "below_L1",
+      "weighted_pass": false
+    },
+    "tracks": {
+      "exec": {
+        "cases": [
+          {
+            "declaration_count": 0,
+            "effective_declaration_count": 0,
+            "expect_failed": [],
+            "id": "exec-0001",
+            "outcome": "fail_missing",
+            "pass": false,
+            "status": "ok",
+            "style_flags": [],
+            "violations": []
+          },
+          {
+            "declaration_count": 0,
+            "effective_declaration_count": 0,
+            "expect_failed": [],
+            "id": "exec-0002",
+            "outcome": "fail_missing",
+            "pass": false,
+            "status": "ok",
+            "style_flags": [],
+            "violations": []
+          },
+          {
+            "declaration_count": 0,
+            "effective_declaration_count": 0,
+            "expect_failed": [],
+            "id": "exec-0003",
+            "outcome": "fail_missing",
+            "pass": false,
+            "status": "ok",
+            "style_flags": [],
+            "violations": []
+          },
+          {
+            "declaration_count": 0,
+            "effective_declaration_count": 0,
+            "expect_failed": [],
+            "id": "exec-0004",
+            "outcome": "fail_missing",
+            "pass": false,
+            "status": "ok",
+            "style_flags": [],
+            "violations": []
+          }
+        ],
+        "degraded_count": 0,
+        "error_count": 0,
+        "fail_missing_count": 4,
+        "fail_violation_count": 0,
+        "n": 4,
+        "pass_count": 0,
+        "pass_rate": 0.0
+      },
+      "grammar": {
+        "cases": [
+          {
+            "header_prepended": false,
+            "id": "grammar-0001",
+            "lint_error_codes": [],
+            "lint_errors": null,
+            "lint_warnings": null,
+            "must_contain_failed": [
+              0,
+              1,
+              2
+            ],
+            "must_not_contain_hit": [],
+            "pass": false,
+            "payload_nonempty": false,
+            "payload_source": "none",
+            "status": "ok"
+          },
+          {
+            "header_prepended": true,
+            "id": "grammar-0002",
+            "lint_error_codes": [],
+            "lint_errors": 0,
+            "lint_warnings": 0,
+            "must_contain_failed": [],
+            "must_not_contain_hit": [],
+            "pass": true,
+            "payload_nonempty": true,
+            "payload_source": "bare",
+            "status": "ok"
+          },
+          {
+            "header_prepended": true,
+            "id": "grammar-0003",
+            "lint_error_codes": [
+              "E300"
+            ],
+            "lint_errors": 1,
+            "lint_warnings": 0,
+            "must_contain_failed": [],
+            "must_not_contain_hit": [],
+            "pass": false,
+            "payload_nonempty": true,
+            "payload_source": "fence",
+            "status": "ok"
+          },
+          {
+            "header_prepended": true,
+            "id": "grammar-0004",
+            "lint_error_codes": [],
+            "lint_errors": 0,
+            "lint_warnings": 0,
+            "must_contain_failed": [],
+            "must_not_contain_hit": [],
+            "pass": true,
+            "payload_nonempty": true,
+            "payload_source": "bare",
+            "status": "ok"
+          }
+        ],
+        "error_count": 0,
+        "n": 4,
+        "pass_count": 2,
+        "pass_rate": 0.5
+      },
+      "judge": {
+        "boundary_acc": 0.0,
+        "boundary_n": 2,
+        "cases": [
+          {
+            "block_count": 0,
+            "boundary": false,
+            "gold_mode": "M3",
+            "id": "judge-0001",
+            "mode_hit": false,
+            "pred_mode": "none",
+            "schema_valid": false,
+            "status": "ok"
+          },
+          {
+            "block_count": 1,
+            "boundary": false,
+            "gold_mode": "M2",
+            "id": "judge-0002",
+            "mode_hit": false,
+            "pred_mode": "none",
+            "schema_valid": false,
+            "status": "ok"
+          },
+          {
+            "block_count": 0,
+            "boundary": true,
+            "gold_mode": "M3",
+            "id": "judge-0003",
+            "mode_hit": false,
+            "pred_mode": "none",
+            "schema_valid": false,
+            "status": "ok"
+          },
+          {
+            "block_count": 0,
+            "boundary": false,
+            "gold_mode": "M5",
+            "id": "judge-0004",
+            "mode_hit": false,
+            "pred_mode": "none",
+            "schema_valid": false,
+            "status": "ok"
+          },
+          {
+            "block_count": 0,
+            "boundary": true,
+            "gold_mode": "M6",
+            "id": "judge-0005",
+            "mode_hit": false,
+            "pred_mode": "none",
+            "schema_valid": false,
+            "status": "ok"
+          }
+        ],
+        "error_count": 0,
+        "mode_acc": 0.0,
+        "multi_block_count": 0,
+        "n": 5,
+        "schema_rate": 0.0
+      }
+    },
+    "vendor": "mock-prose"
+  },
+  "tracks": [
+    "exec",
+    "grammar",
+    "judge"
+  ]
+}

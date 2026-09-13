@@ -1,0 +1,5 @@
+::ILANG::v4.0
+::GENE{conclusion_first|conf:confirmed|scope:session}
+  T:lead_with_conclusion
+  T:add_three_bullet_tldr|when:source_over_5000_words
+  A:conclusion_buried_at_end⇒flag

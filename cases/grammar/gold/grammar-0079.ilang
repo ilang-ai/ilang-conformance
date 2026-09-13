@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=/var/log/nginx/access.log]=>[FILT|whr=status:5xx]=>[CNT|grp=endpoint]=>[SEND:@WORKER|fmt=json]

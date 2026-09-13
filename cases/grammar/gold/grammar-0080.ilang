@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=kb/refund_policy.md]=>[CHNK|cap=500]=>[EMBD]=>[SAVE:@R2|path=vectors/refund_policy.json,fmt=json]

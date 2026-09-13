@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=crm/contacts.csv]=>[DEDU|col=email]=>[SORT|srt=name_pinyin]=>[WRIT:@LOCAL|path=crm/contacts.json,fmt=json,enc=utf8]

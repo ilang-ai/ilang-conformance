@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=transcripts/vlog_0911.txt]=>[SHRT|len=60s]=>[REWR|ton=casual]=>[WRIT:@DRIVE|path=shorts/vlog_0911.txt]

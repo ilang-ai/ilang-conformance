@@ -1,0 +1,4 @@
+::ILANG::v4.0
+::GENE{tests_before_commit|conf:confirmed|scope:project}
+  T:run_full_test_suite_before_commit
+  A:commit_with_failing_tests⇒fatal

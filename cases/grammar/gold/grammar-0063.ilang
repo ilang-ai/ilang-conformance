@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=papers/attention.pdf]=>[SHRT|typ=bullet_points,lim=5,fmt=text]=>[DISP:@SCREEN]

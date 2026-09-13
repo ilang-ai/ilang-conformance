@@ -1,0 +1,6 @@
+::ILANG::v4.0
+::OBJECTIVE{id:g1|owner:user|status:active}
+  target: 把公司博客从 WordPress 迁移到 Hugo
+  ACCEPT: 所有旧文章链接都能 301 跳转 AND 构建零报错
+  NON_GOALS: 换主题, 改文章内容
+  DONE_WHEN: 新站上线 + 提交迁移报告

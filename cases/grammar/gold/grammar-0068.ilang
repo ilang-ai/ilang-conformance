@@ -1,0 +1,5 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=interviews/guest_07.wav]=>[CHNK|len=10min]
+  =>[BATC|op=EXTC,typ=transcript,lng=en]
+  =>[MERGE]
+  =>[WRIT:@DRIVE|path=interviews/guest_07_transcript.txt]

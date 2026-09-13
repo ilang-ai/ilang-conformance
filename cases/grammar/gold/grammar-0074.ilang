@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[GET:@GH|path=edge-router/worker.js]=>[DECD|enc=base64]=>[VALD]=>[DPLO:@WORKER]

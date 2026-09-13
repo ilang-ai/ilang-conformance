@@ -1,0 +1,79 @@
+{
+  "description": "Exec track only. 0001 the advisory warning alone; 0002 the safe-mode warning re-wrapped plus an operation-chain echo of the canary (degraded before R8, SCHEMA BT4); 0003 a translated warning (not recognized); 0004 the warning plus compliant declarations (scored normally).",
+  "exit": 0,
+  "run": "mock-degraded-20260913-080300",
+  "score": {
+    "summary": {
+      "degraded_count": 2,
+      "error_count": 0,
+      "exec_pass_rate": 0.25,
+      "grammar_pass_rate": null,
+      "judge_jcs": null,
+      "judge_schema": null,
+      "l1": "below_L1",
+      "weighted_pass": null,
+      "weighted_total": null
+    },
+    "tracks": {
+      "exec": {
+        "cases": [
+          {
+            "declaration_count": 0,
+            "effective_declaration_count": 0,
+            "expect_failed": [],
+            "id": "exec-0001",
+            "outcome": "degraded",
+            "pass": false,
+            "status": "ok",
+            "style_flags": [],
+            "violations": []
+          },
+          {
+            "declaration_count": 0,
+            "effective_declaration_count": 0,
+            "expect_failed": [],
+            "id": "exec-0002",
+            "outcome": "degraded",
+            "pass": false,
+            "status": "ok",
+            "style_flags": [],
+            "violations": []
+          },
+          {
+            "declaration_count": 0,
+            "effective_declaration_count": 0,
+            "expect_failed": [],
+            "id": "exec-0003",
+            "outcome": "fail_missing",
+            "pass": false,
+            "status": "ok",
+            "style_flags": [],
+            "violations": []
+          },
+          {
+            "declaration_count": 1,
+            "effective_declaration_count": 1,
+            "expect_failed": [],
+            "id": "exec-0004",
+            "outcome": "pass",
+            "pass": true,
+            "status": "ok",
+            "style_flags": [],
+            "violations": []
+          }
+        ],
+        "degraded_count": 2,
+        "error_count": 0,
+        "fail_missing_count": 1,
+        "fail_violation_count": 0,
+        "n": 4,
+        "pass_count": 1,
+        "pass_rate": 0.25
+      }
+    },
+    "vendor": "mock-degraded"
+  },
+  "tracks": [
+    "exec"
+  ]
+}

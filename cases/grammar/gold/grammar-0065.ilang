@@ -1,0 +1,6 @@
+::ILANG::v4.0
+[GET|src=https://blog.example.org/feed.xml]
+  =>[PARS|fmt=xml]
+  =>[FILT|whr=published:this_week]
+  =>[DRFT|fmt=email,len=short]
+  =>[SEND:@DST]

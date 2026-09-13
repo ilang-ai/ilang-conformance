@@ -1,0 +1,4 @@
+::ILANG::v4.0
+::RUBRIC{id:r2|objective:g4|threshold:0.9|mode:weighted}
+  R:correctness|weight:0.7|check:all_unit_tests_pass
+  R:readability|weight:0.3|check:zero_linter_warnings

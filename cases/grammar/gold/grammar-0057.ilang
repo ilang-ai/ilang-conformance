@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=podcast/ep42.mp3]=>[EXTC|typ=transcript]=>[XLAT|lng=en]=>[GEN|typ=voiceover,lng=en]=>[WRIT:@LOCAL|path=podcast/ep42_en.mp3]

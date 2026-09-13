@@ -1,0 +1,227 @@
+{
+  "description": "All tracks with one status:error record per track (grammar-0002, exec-0003, judge-0002), a must_not_contain hit (fmt=JSON), an R1 violation on an exhausted budget, and an S2 style flag. error_count 3 blocks L1 and marks the scoreboard row incomplete.",
+  "exit": 0,
+  "run": "mock-errors-20260913-080400",
+  "score": {
+    "summary": {
+      "degraded_count": 0,
+      "error_count": 3,
+      "exec_pass_rate": 0.5,
+      "grammar_pass_rate": 0.5,
+      "judge_schema": 0.8,
+      "l1": "below_L1",
+      "weighted_pass": false
+    },
+    "tracks": {
+      "exec": {
+        "cases": [
+          {
+            "declaration_count": 1,
+            "effective_declaration_count": 1,
+            "expect_failed": [
+              "state",
+              "reason",
+              "forbidden_states"
+            ],
+            "id": "exec-0001",
+            "outcome": "fail_violation",
+            "pass": false,
+            "status": "ok",
+            "style_flags": [],
+            "violations": [
+              "R1"
+            ]
+          },
+          {
+            "declaration_count": 1,
+            "effective_declaration_count": 1,
+            "expect_failed": [],
+            "id": "exec-0002",
+            "outcome": "pass",
+            "pass": true,
+            "status": "ok",
+            "style_flags": [],
+            "violations": []
+          },
+          {
+            "declaration_count": 0,
+            "effective_declaration_count": 0,
+            "expect_failed": [],
+            "id": "exec-0003",
+            "outcome": "error",
+            "pass": false,
+            "status": "error",
+            "style_flags": [],
+            "violations": []
+          },
+          {
+            "declaration_count": 2,
+            "effective_declaration_count": 2,
+            "expect_failed": [],
+            "id": "exec-0004",
+            "outcome": "pass",
+            "pass": true,
+            "status": "ok",
+            "style_flags": [
+              "S2"
+            ],
+            "violations": []
+          }
+        ],
+        "degraded_count": 0,
+        "error_count": 1,
+        "fail_missing_count": 0,
+        "fail_violation_count": 1,
+        "n": 4,
+        "pass_count": 2,
+        "pass_rate": 0.5,
+        "rule_fail_counts": {
+          "R1": 1,
+          "R10": 0,
+          "R11": 0,
+          "R2": 0,
+          "R3": 0,
+          "R4": 0,
+          "R7": 0,
+          "R8": 0,
+          "R9": 0
+        },
+        "style_flag_counts": {
+          "S1": 0,
+          "S2": 1
+        }
+      },
+      "grammar": {
+        "cases": [
+          {
+            "header_prepended": true,
+            "id": "grammar-0001",
+            "lint_error_codes": [],
+            "lint_errors": 0,
+            "lint_warnings": 0,
+            "must_contain_failed": [
+              2
+            ],
+            "must_not_contain_hit": [
+              "fmt=JSON"
+            ],
+            "pass": false,
+            "payload_nonempty": true,
+            "payload_source": "fence",
+            "status": "ok"
+          },
+          {
+            "header_prepended": false,
+            "id": "grammar-0002",
+            "lint_error_codes": [],
+            "lint_errors": null,
+            "lint_warnings": null,
+            "must_contain_failed": [],
+            "must_not_contain_hit": [],
+            "pass": false,
+            "payload_nonempty": false,
+            "payload_source": "none",
+            "status": "error"
+          },
+          {
+            "header_prepended": true,
+            "id": "grammar-0003",
+            "lint_error_codes": [],
+            "lint_errors": 0,
+            "lint_warnings": 0,
+            "must_contain_failed": [],
+            "must_not_contain_hit": [],
+            "pass": true,
+            "payload_nonempty": true,
+            "payload_source": "bare",
+            "status": "ok"
+          },
+          {
+            "header_prepended": true,
+            "id": "grammar-0004",
+            "lint_error_codes": [],
+            "lint_errors": 0,
+            "lint_warnings": 0,
+            "must_contain_failed": [],
+            "must_not_contain_hit": [],
+            "pass": true,
+            "payload_nonempty": true,
+            "payload_source": "fence",
+            "status": "ok"
+          }
+        ],
+        "error_count": 1,
+        "n": 4,
+        "pass_count": 2,
+        "pass_rate": 0.5
+      },
+      "judge": {
+        "boundary_acc": 1.0,
+        "boundary_n": 2,
+        "cases": [
+          {
+            "block_count": 1,
+            "boundary": false,
+            "gold_mode": "M3",
+            "id": "judge-0001",
+            "mode_hit": true,
+            "pred_mode": "M3",
+            "schema_valid": true,
+            "status": "ok"
+          },
+          {
+            "block_count": 0,
+            "boundary": false,
+            "gold_mode": "M2",
+            "id": "judge-0002",
+            "mode_hit": false,
+            "pred_mode": "none",
+            "schema_valid": false,
+            "status": "error"
+          },
+          {
+            "block_count": 1,
+            "boundary": true,
+            "gold_mode": "M3",
+            "id": "judge-0003",
+            "mode_hit": true,
+            "pred_mode": "M3",
+            "schema_valid": true,
+            "status": "ok"
+          },
+          {
+            "block_count": 1,
+            "boundary": false,
+            "gold_mode": "M5",
+            "id": "judge-0004",
+            "mode_hit": true,
+            "pred_mode": "M5",
+            "schema_valid": true,
+            "status": "ok"
+          },
+          {
+            "block_count": 1,
+            "boundary": true,
+            "gold_mode": "M6",
+            "id": "judge-0005",
+            "mode_hit": true,
+            "pred_mode": "M6",
+            "schema_valid": true,
+            "status": "ok"
+          }
+        ],
+        "error_count": 1,
+        "mode_acc": 0.8,
+        "multi_block_count": 0,
+        "n": 5,
+        "schema_rate": 0.8
+      }
+    },
+    "vendor": "mock-errors"
+  },
+  "tracks": [
+    "exec",
+    "grammar",
+    "judge"
+  ]
+}

@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=config/prod.yaml]=>[DIFF|src=config/staging.yaml]=>[EXTC|whr=changed_keys]=>[LOG:@LOG|pri=p1]

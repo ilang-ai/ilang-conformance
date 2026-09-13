@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=contracts/合同草稿.docx]=>[CONV|fmt=text]=>[DIFF|src=contracts/合同终稿.txt]=>[WRIT:@LOCAL|path=contracts/diff.md]

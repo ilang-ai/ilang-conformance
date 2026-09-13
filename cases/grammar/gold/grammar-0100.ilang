@@ -1,0 +1,4 @@
+::ILANG::v4.0
+::GENE{cite_data_source|conf:confirmed|scope:project}
+  T:state_data_source_for_every_conclusion
+  ::PRIOR{completion:assume_incomplete}

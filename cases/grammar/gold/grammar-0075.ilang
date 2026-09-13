@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=copy/lamp.txt]=>[DRFT|typ=promo_script,len=short]=>[XLAT|lng=fr]=>[WRIT:@COS|path=promos/lamp-fr.txt]

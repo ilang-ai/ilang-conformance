@@ -1,0 +1,2 @@
+::ILANG::v4.0
+::RULE{csv_malformed_rows>25⇒reject_entire_file}

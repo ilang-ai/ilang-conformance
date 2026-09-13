@@ -1,0 +1,6 @@
+{
+  "description": "A run with MANIFEST.sha256 but without DONE: score.py refuses with exit 3 and names run.log.",
+  "exit": 3,
+  "run": "mock-20260913-090000",
+  "stderr_contains": "mock-20260913-090000/run.log"
+}

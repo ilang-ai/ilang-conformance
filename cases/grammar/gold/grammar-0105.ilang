@@ -1,0 +1,5 @@
+::ILANG::v4.0
+::OBJECTIVE{id:g1|owner:user|status:active}
+  ACCEPT: every onboarding page translated AND reviewed by a native German speaker
+  NON_GOALS: rewriting the English source, translating the API reference
+  DONE_WHEN: German onboarding docs live on the site

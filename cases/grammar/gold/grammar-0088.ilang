@@ -1,0 +1,5 @@
+::ILANG::v4.0
+::RUBRIC{id:r1|threshold:0.85|mode:weighted}
+  R:coverage|weight:0.5|check:all_decisions_included
+  R:length|weight:0.2|check:max_300_chars
+  R:accuracy|weight:0.3|check:no_factual_errors

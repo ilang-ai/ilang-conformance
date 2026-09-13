@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=assets/logo.png]=>[ENCD|enc=base64]=>[TMPL|src=templates/welcome.html,fmt=html]

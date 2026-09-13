@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@DRIVE|path=calendar/team.ics]=>[FILT|frm=2026-10-01,to=2026-10-15]=>[GRP|grp=project]=>[DISP:@SCREEN|fmt=md]

@@ -1,0 +1,3 @@
+::ILANG::v4.0
+::LESSON{id:container_cron_timezone|type:debug|scope:project|conf:confirmed}
+  容器默认使用 UTC 时区，定时任务因此晚 8 小时执行。部署时要显式设置 TZ 环境变量。

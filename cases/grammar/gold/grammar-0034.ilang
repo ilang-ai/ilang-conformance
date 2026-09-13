@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[STAT:@LOCAL|path=perf/load-test-0912.csv,col=latency_ms,typ="mean,median,p95"]

@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@GH|path=config.json]=>[FMT|fmt=json]=>[Ω]

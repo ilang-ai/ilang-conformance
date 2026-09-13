@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=plans/q4_goals.md]=>[PLAN|lim=8]=>[RANK|srt=pri]=>[DISP:@SCREEN|fmt=md]

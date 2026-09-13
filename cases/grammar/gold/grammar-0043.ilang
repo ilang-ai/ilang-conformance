@@ -1,0 +1,5 @@
+::ILANG::v4.0
+[LIST:@LOCAL|path=src,mch=*.py]=>[Π:READ]
+  =>[MTCH|mch=TODO]
+  =>[CNT|grp=file]
+  =>[OUT|fmt=json]

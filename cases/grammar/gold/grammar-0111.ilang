@@ -1,0 +1,3 @@
+::ILANG::v4.0
+::LESSON{id:german_ui_string_overflow|type:translation|scope:global|conf:3/5}
+  German UI strings run about 30% longer and overflow buttons. Check string length after translating.

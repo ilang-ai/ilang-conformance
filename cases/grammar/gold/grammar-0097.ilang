@@ -1,0 +1,2 @@
+::ILANG::v4.0
+::GENE_MUTABLE{commit_message_style|T:conclusion_first|G:{Claude:0.9,DeepSeek:0.6}|Θ:task_type=git_commit}

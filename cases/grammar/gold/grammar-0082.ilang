@@ -1,0 +1,2 @@
+::ILANG::v4.0
+::RULE{pr_changed_lines>400⇒split_into_smaller_prs_before_review}

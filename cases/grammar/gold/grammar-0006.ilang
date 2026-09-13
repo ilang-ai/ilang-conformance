@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[GET|src=https://status.example.com/api/v1/incidents,fmt=json]

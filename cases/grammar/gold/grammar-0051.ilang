@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=downloads/dataset.tar.gz]=>[EXPN]=>[FILT|mch=*.csv]=>[Σ]=>[OUT|top=100]

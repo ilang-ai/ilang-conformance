@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=inbox/complaint_117.eml]=>[XLAT|lng=en]=>[DRFT|ton=polite_professional,fmt=email]

@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@SRC]=>[XLAT|lng=zh]=>[WRIT:@R2|path=translated.md]

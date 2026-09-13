@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[PARS:@LOCAL|path=logs/access-2026-09-12.log,typ=apache_access_log,fmt=csv]

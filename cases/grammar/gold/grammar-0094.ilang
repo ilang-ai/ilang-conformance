@@ -1,0 +1,3 @@
+::ILANG::v4.0
+::EVIDENCE{id:e1|deliverable:d1|kind:page_check|ref:product_detail_page_v2|verified_by:@TOOL|result:pass}
+::STATUS{@TASK|state:claimed_complete|evidence:e1|by:@SELF|authority:proposal}

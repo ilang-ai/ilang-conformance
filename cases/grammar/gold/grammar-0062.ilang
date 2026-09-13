@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@GH|path=README.md]=>[XLAT|lng=ko]=>[WRIT:@GH|path=README.ko.md]

@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[GET|src=https://downloads.example.net/tool-2.4.1.tar.gz]=>[HASH|typ=sha256,enc=hex]=>[CHEK|whr=matches_published_checksum]

@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[FILT:@LOCAL|path=schedule/devsummit-2026.json,whr=date=2026-11-04,fmt=md]

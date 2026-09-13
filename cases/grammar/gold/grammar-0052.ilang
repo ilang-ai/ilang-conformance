@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=feedback/app_reviews.json]=>[ψ]=>[FILT|whr=sentiment:negative]=>[OUT|fmt=json,top=20]

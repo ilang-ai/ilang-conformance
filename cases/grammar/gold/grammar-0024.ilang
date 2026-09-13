@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[PIVT:@LOCAL|path=finance/sales-2026.csv,col=region,row=month,fmt=html]

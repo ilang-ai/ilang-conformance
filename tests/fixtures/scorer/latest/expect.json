@@ -1,0 +1,13 @@
+{
+  "description": "--latest selection: mock-20260913-110000 is newer than the finished mock-20260913-100000 but has no DONE, so --latest --vendor mock refuses with exit 3 and names mock-20260913-110000/run.log (book §8 third command); the finished run can still be scored by path. other-20260913-120000 belongs to vendor other and is selected and scored.",
+  "exit": {
+    "mock": 3,
+    "other": 0
+  },
+  "select": {
+    "other": "other-20260913-120000"
+  },
+  "stderr_contains": {
+    "mock": "mock-20260913-110000/run.log"
+  }
+}

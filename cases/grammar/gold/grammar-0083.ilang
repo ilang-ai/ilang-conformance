@@ -1,0 +1,4 @@
+::ILANG::v4.0
+::GENE{glossary_first|conf:confirmed|scope:global}
+  T:check_project_glossary_before_translating_terms
+  A:translate_terms_without_glossary⇒fatal

@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=build]=>[CMPR|typ=tar.gz]=>[WRIT:@R2|path=releases/site-v2.3.0.tar.gz]

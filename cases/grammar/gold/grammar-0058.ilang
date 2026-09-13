@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[GET:@CF|path=zones/example.com/analytics,frm=now-7d]=>[ANOM]=>[RANK|top=5]=>[LOG:@LOG]

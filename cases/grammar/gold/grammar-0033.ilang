@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[SPLIT:@LOCAL|path=contracts/master-agreement.txt,mch=^Section,typ=regex]

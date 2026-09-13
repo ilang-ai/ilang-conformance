@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@GH|path=ilang-demo]=>[TEST|pri=p0]=>[CHEK|whr=all_pass]=>[DPLO:@WORKER]

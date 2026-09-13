@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=data/orders_2026-08.csv]=>[FILT|whr=status:refunded]=>[SORT|srt=-refund_amount]=>[WRIT:@LOCAL|path=reports/refunds.csv,fmt=csv]

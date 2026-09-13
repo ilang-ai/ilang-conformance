@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[SCAN:@SRC]=>[EXTC|whr=entities]=>[CLSF|typ=topic]=>[FMT|fmt=json]=>[Ω]

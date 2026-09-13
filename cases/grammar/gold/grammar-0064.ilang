@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[LIST:@LOCAL|path=src,mch=*.js]=>[BATC|op=SCAN,whr=hardcoded_api_key]=>[CLSF|typ=severity]=>[WRIT:@LOCAL|path=security/findings.json,fmt=json]

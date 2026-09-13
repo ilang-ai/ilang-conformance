@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=finance/revenue_2024_2026.csv]=>[TRND]=>[FRCS|lim=6]=>[EXPT:@LOCAL|path=finance/forecast.csv,fmt=csv]

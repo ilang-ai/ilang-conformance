@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@STDIN]=>[FILT|whr=no_missing_values]=>[GRP|grp=device]=>[μ|typ=min_max_mean]=>[PRNT|fmt=json]

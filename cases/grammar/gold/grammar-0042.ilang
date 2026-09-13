@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=docs/产品手册.md]=>[XLAT|lng=ja]=>[WRIT:@LOCAL|path=docs/产品手册.ja.md]

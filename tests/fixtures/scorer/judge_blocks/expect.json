@@ -1,0 +1,84 @@
+{
+  "description": "Judge track only. 0001 no block; 0002 two valid blocks, the last one correct; 0003 a valid block followed by an invalid last block (1dp value); 0004 a valid block followed by an X:extra field line; 0005 a valid block with the wrong mode followed by a :: declaration line (not an extra field). Every schema-valid block carries the gold vector.",
+  "exit": 0,
+  "run": "mock-judge-blocks-20260913-080200",
+  "score": {
+    "summary": {
+      "degraded_count": 0,
+      "error_count": 0,
+      "exec_pass_rate": null,
+      "grammar_pass_rate": null,
+      "judge_schema": 0.4,
+      "l1": "below_L1",
+      "weighted_pass": null,
+      "weighted_total": null
+    },
+    "tracks": {
+      "judge": {
+        "boundary_acc": 0.0,
+        "boundary_n": 2,
+        "cases": [
+          {
+            "block_count": 0,
+            "boundary": false,
+            "gold_mode": "M3",
+            "id": "judge-0001",
+            "mode_hit": false,
+            "pred_mode": "none",
+            "schema_valid": false,
+            "status": "ok"
+          },
+          {
+            "block_count": 2,
+            "boundary": false,
+            "gold_mode": "M2",
+            "id": "judge-0002",
+            "mode_hit": true,
+            "pred_mode": "M2",
+            "schema_valid": true,
+            "status": "ok"
+          },
+          {
+            "block_count": 2,
+            "boundary": true,
+            "gold_mode": "M3",
+            "id": "judge-0003",
+            "mode_hit": false,
+            "pred_mode": "none",
+            "schema_valid": false,
+            "status": "ok"
+          },
+          {
+            "block_count": 1,
+            "boundary": false,
+            "gold_mode": "M5",
+            "id": "judge-0004",
+            "mode_hit": false,
+            "pred_mode": "none",
+            "schema_valid": false,
+            "status": "ok"
+          },
+          {
+            "block_count": 1,
+            "boundary": true,
+            "gold_mode": "M6",
+            "id": "judge-0005",
+            "mode_hit": false,
+            "pred_mode": "M4",
+            "schema_valid": true,
+            "status": "ok"
+          }
+        ],
+        "error_count": 0,
+        "mode_acc": 0.2,
+        "multi_block_count": 2,
+        "n": 5,
+        "schema_rate": 0.4
+      }
+    },
+    "vendor": "mock-judge-blocks"
+  },
+  "tracks": [
+    "judge"
+  ]
+}

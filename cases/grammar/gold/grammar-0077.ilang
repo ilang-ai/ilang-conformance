@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@COS|path=crm/purchases.json]=>[CLST|typ=customer_segment]=>[RANK|srt=revenue]=>[DISP:@SCREEN|top=3]

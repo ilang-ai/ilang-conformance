@@ -1,0 +1,3 @@
+{"id":"grammar-0001","track":"grammar","lang":"zh","kind":"chain","prompt":"读取 config.json，格式化成 json 输出后结束","expect":{"lint_errors":0,"must_contain":[["[READ:","[READ|"],"fmt=json"],"must_not_contain":["fmt=JSON"]}}
+{"id":"grammar-0002","track":"grammar","lang":"en","kind":"chain","prompt":"Read the source, translate it into Chinese and write the result to translated.md","expect":{"lint_errors":0,"must_contain":["[XLAT|","lng=zh","translated.md"],"must_not_contain":["lng=chinese"]}}
+{"id":"grammar-0003","track":"grammar","lang":"en","kind":"chain","prompt":"Scan the source, extract the entities, classify them by topic and output json","expect":{"lint_errors":0,"must_contain":["[EXTC|","typ=topic"],"must_not_contain":["type=topic"]}}

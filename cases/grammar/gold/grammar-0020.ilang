@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[COPY:@DRIVE|src=@R2,path=backups/db-2026-09-12.sql.gz]

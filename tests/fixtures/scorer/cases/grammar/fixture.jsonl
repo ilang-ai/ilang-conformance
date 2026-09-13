@@ -1,0 +1,4 @@
+{"id":"grammar-0001","track":"grammar","lang":"zh","kind":"chain","prompt":"把 data/sales.csv 里 2026 年 Q2 的记录按地区分组，输出 json","expect":{"lint_errors":0,"must_contain":[["[READ:","[READ|"],"grp=","fmt=json"],"must_not_contain":["group_by=","fmt=JSON"]}}
+{"id":"grammar-0002","track":"grammar","lang":"en","kind":"single_op","prompt":"Translate notes.md into French.","expect":{"lint_errors":0,"must_contain":["[XLAT:","lng=fr"],"must_not_contain":["lang="]}}
+{"id":"grammar-0003","track":"grammar","lang":"zh","kind":"declaration","prompt":"记录一条已确认的事实：release 已冻结。","expect":{"lint_errors":0,"must_contain":["::FACT{","conf:confirmed"],"must_not_contain":["::FACTS{"]}}
+{"id":"grammar-0004","track":"grammar","lang":"en","kind":"chain","prompt":"Read logs/app.log, keep the error lines and count them.","expect":{"lint_errors":0,"must_contain":["[FILT:","[CNT:"],"must_not_contain":["filter="]}}

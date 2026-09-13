@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=meeting/0912.txt]=>[SHRT|len=300,lng=zh]=>[SEND:@DST|fmt=email]

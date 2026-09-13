@@ -1,0 +1,5 @@
+::ILANG::v4.0
+::ACTIVATE{release_notes}
+  ON:tag_pushed
+  ON:before_release_publish
+  [DIFF:@GH|path=CHANGELOG.md]=>[DRFT|fmt=md]=>[Ω]

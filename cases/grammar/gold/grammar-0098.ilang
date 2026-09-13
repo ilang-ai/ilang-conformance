@@ -1,0 +1,5 @@
+::ILANG::v4.0
+::ACTIVATE{weekly_data_backup}
+  ON:every_sunday_0200
+  ON:manual_request
+  [SYNC:@R2|src=@LOCAL,path=data/]

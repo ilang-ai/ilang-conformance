@@ -1,0 +1,6 @@
+{
+  "description": "exec-0003.json was edited after MANIFEST.sha256 and DONE were written: score.py refuses with exit 1.",
+  "exit": 1,
+  "run": "mock-20260913-080500",
+  "stderr_contains": "exec/exec-0003.json"
+}

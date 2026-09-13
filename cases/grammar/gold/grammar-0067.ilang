@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=copy/storefront.md]=>[STYL|sty=warm_personal]=>[WRIT:@R2|path=copy/storefront-warm.md]

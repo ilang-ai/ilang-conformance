@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@R2|path=logs,mch=*.log]=>[MERGE]=>[DEDU|col=ip]=>[CNT]=>[OUT|fmt=csv]

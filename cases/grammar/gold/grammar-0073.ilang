@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[GET|src=https://shop.example.com/pricing]=>[EXTC|typ=plan_name_and_price]=>[XLAT|lng=de]=>[FMT|fmt=json]

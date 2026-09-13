@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=exports/温度记录.csv]=>[GRP|grp=city]=>[STAT|typ=mean,col=temperature]=>[DISP:@SCREEN|fmt=md]

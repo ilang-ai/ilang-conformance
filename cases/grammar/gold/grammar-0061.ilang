@@ -1,0 +1,2 @@
+::ILANG::v4.0
+[READ:@LOCAL|path=data/inventory.xlsx]=>[FILT|whr=stock<10]=>[SORT|srt=supplier]=>[EXPT:@LOCAL|path=reports/low_stock.csv,fmt=csv]
