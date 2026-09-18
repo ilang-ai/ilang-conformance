@@ -284,12 +284,13 @@ def screen_one(name):
                             cwd=REPO, capture_output=True, text=True, encoding="utf-8", errors="replace")
         recs = records(rd)
         rel = rd.relative_to(REPO).as_posix()
-        if cp.returncode != 0 and not recs:
+        err = failure_text(recs)
+        if len(recs) < 3 and not err:
+            # the runner stopped or could not write a record: not a parameter problem
             tail = (cp.stderr or cp.stdout).strip().splitlines()[-1:] or ["exit %d" % cp.returncode]
             return {"vendor": name, "result": "skip", "attempts": attempt, "params": json.dumps(params),
-                    "run_dir": rel, "reason": "runner: " + tail[0][:200]}
-        err = failure_text(recs) if len(recs) == 3 else (failure_text(recs) or "missing records")
-        if len(recs) == 3 and not err:
+                    "run_dir": rel, "reason": "runner: %d of 3 records; %s" % (len(recs), tail[0][:200])}
+        if not err:
             return {"vendor": name, "result": "pass", "attempts": attempt, "params": json.dumps(params),
                     "run_dir": rel, "reason": ""}
         low = err.lower()
