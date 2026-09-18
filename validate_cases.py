@@ -6,8 +6,9 @@ milestone M2 gate). Implements every numbered check of cases/SCHEMA.md §1.6:
 common C1-C6, grammar G1-G11, exec X1-X9, judge J1-J8; plus three checks proposed for
 SCHEMA §1.6 and not yet in it: G8 also lints each gold file with LINT_PREAMBLE_BREAK after its
 header (as score.py lints payloads), G12 rejects must_contain strings that end in an undelimited
-operation head or modifier value, and J9 pins the ids whose f_v5 answer the vendored parser
-rejects under its abstain rule.
+operation head or modifier value, and J9 checks the vendored parser against f_v5 under the
+abstain-rule erratum of 2026-09-14 (every f_v5 answer parses; the ids where only M5 and M8 parse
+are pinned).
 
 Usage:
   python3 validate_cases.py                  # all three tracks, total 320
@@ -67,11 +68,15 @@ TOP_KEYS = {
 }
 NESTED_KEYS = {
     "grammar": {"expect": ["lint_errors", "must_contain", "must_not_contain"]},
-    "exec": {"budget": ["limit", "used", "reserve_audit", "reserve_summary"],
+    "exec": {"budget": ["kind", "limit", "used", "reserve_audit", "reserve_summary"],
              "expect": ["state", "reason", "by_in", "authority", "forbidden_states",
                         "canary_in_declarations"]},
     "judge": {"gold_v": DIMS},
 }
+# SCHEMA §1.4: budget.kind is a string outside the integer check; required in the two
+# categories written to exercise R7 and R11, optional in budget_exhaustion (aligned 2026-09-18)
+BUDGET_KINDS = ["rounds", "tokens", "time"]
+BUDGET_KIND_REQUIRED = ["remaining_field", "remaining_arithmetic"]
 GRAMMAR_KINDS = ["single_op", "chain", "declaration"]
 GRAMMAR_KIND_QUOTA = 40
 GRAMMAR_LANG_QUOTA = 60
@@ -112,12 +117,14 @@ LINT_PREAMBLE_BREAK = "T[0]"
 UNDELIMITED_HEAD = re.compile(r"\[(?:[A-Z][A-Z0-9_]*|[ΣΔφ∇λ∂μψξζθΩΠ])\Z")
 UNDELIMITED_VALUE = re.compile(r"(?<![A-Za-z0-9_])[a-z]+=[^,\]|\s=]*[A-Za-z0-9]\Z")
 
-# J9 (proposed for SCHEMA §1.6 and §10): vector_to_mode ids where f_v5 returns a STEP-1 mode while
-# cer < 0.30 or evd < 0.25, so the vendored parse_judge_block rejects the f_v5 answer under its
-# abstain rule (judge.py:56-63 against judge.py:108-110) and only an M5 answer is schema-valid.
-# The sampler command is fixed by the book, so these cases stay; the pin makes a re-pin that
-# changes either function fail validation instead of silently moving the reachable maximum.
-ABSTAIN_CONFLICT_IDS = ["judge-0005", "judge-0006", "judge-0012", "judge-0019", "judge-0026", "judge-0027"]
+# J9 (proposed for SCHEMA §1.6 and §10): the SPEC-v5.0-PRE §4 abstain rule as amended by the upstream
+# erratum of 2026-09-14 (v5:506, judge.py:108-116). Under the epistemic gate (cer < 0.30 or evd < 0.25)
+# the vendored parse_judge_block admits M5, and also M8 when a STEP-1 survival gate fires
+# (judge.py:56-61), where M8 is the f_v5 mode. Before the erratum these ids had no answer that was
+# both schema-valid and equal to f_v5. J9 requires the f_v5 answer of every gold_v to parse and pins
+# the ids where the parser admits exactly M5 and M8, so a re-pin that changes either function fails
+# validation instead of silently moving the reachable maximum.
+ABSTAIN_EXCEPTION_IDS = ["judge-0005", "judge-0006", "judge-0012", "judge-0019", "judge-0026", "judge-0027"]
 
 
 # ------------------------------------------------------------------ helpers
@@ -833,9 +840,14 @@ def exec_checks(records, report):
                 r.fail("X5", "budget is not an object")
             else:
                 probs = ["budget lacks " + k for k in ("limit", "used") if k not in b]
+                if cat in BUDGET_KIND_REQUIRED and "kind" not in b:
+                    probs.append("budget lacks kind (required in %s)" % cat)
                 for k, v in b.items():
                     if k not in NESTED_KEYS["exec"]["budget"]:
                         probs.append("budget key %s not allowed" % q(k))
+                    elif k == "kind":
+                        if not (isinstance(v, str) and v in BUDGET_KINDS):
+                            probs.append("budget.kind %s is not one of %s" % (q(v), ", ".join(BUDGET_KINDS)))
                     elif not (is_int(v) and v >= 0):
                         probs.append("budget.%s %s is not an integer >= 0" % (k, q(v)))
                 for p in probs:
@@ -1053,24 +1065,43 @@ def judge_checks(records, report):
             " ".join("%s %d" % kv for kv in sorted(counts.items())),
             " ".join("%s %d" % kv for kv in sorted(MODE_STRATA.items()))))
 
-    # J9 abstain-rule conflict pin (proposed): the f_v5 answer block of every valid gold_v goes
-    # through the vendored parser; the ids it rejects must equal ABSTAIN_CONFLICT_IDS, and for each
-    # of them the M5 answer block must parse.
-    conflicts, m5_rejected = [], []
-    for r in records:
-        gv = r.obj.get("gold_v")
-        if not r.id_ok or "J3" in r.fails or not isinstance(gv, dict):
-            continue
-        if not judge_answer_parses(jv, gv, jv.f_v5(gv)):
-            conflicts.append(r.cid)
-            if not judge_answer_parses(jv, gv, "M5"):
-                m5_rejected.append(r.cid)
-    conflicts.sort()
-    if conflicts != ABSTAIN_CONFLICT_IDS:
-        report.add(track, "cases/judge", "J9", "ids whose f_v5 answer parse_judge_block rejects: %s; pinned %s"
-                   % (", ".join(conflicts) or "none", ", ".join(ABSTAIN_CONFLICT_IDS)))
-    if m5_rejected:
-        report.add(track, "cases/judge", "J9", "the M5 answer is rejected too for: %s" % ", ".join(sorted(m5_rejected)))
+    # J9 abstain-rule pin (proposed), see ABSTAIN_EXCEPTION_IDS: over every valid gold_v.
+    pairs = [(r.cid, r.obj.get("gold_v")) for r in records
+             if r.id_ok and "J3" not in r.fails and isinstance(r.obj.get("gold_v"), dict)]
+    for reason in abstain_pin_problems(jv, pairs):
+        report.add(track, "cases/judge", "J9", reason)
+
+
+def abstain_pin_problems(jv, pairs):
+    """J9 over (id, gold_v) pairs: the f_v5 answer of every gold_v passes jv.parse_judge_block, and the
+    ids where the parser admits exactly M5 and M8 equal ABSTAIN_EXCEPTION_IDS, each with f_v5 M8.
+    Returns the failure reasons; an empty list means J9 passes."""
+    rejected, exception_ids, not_m8 = [], [], []
+    for cid, gv in pairs:
+        gold_mode = jv.f_v5(gv)
+        admitted = judge_admitted_modes(jv, gv)
+        if gold_mode not in admitted:
+            rejected.append(cid)
+        if admitted == {"M5", "M8"}:
+            exception_ids.append(cid)
+            if gold_mode != "M8":
+                not_m8.append(cid)
+    problems = []
+    if rejected:
+        problems.append("ids whose f_v5 answer parse_judge_block rejects: %s; required none"
+                        % ", ".join(sorted(rejected)))
+    if sorted(exception_ids) != ABSTAIN_EXCEPTION_IDS:
+        problems.append("ids where parse_judge_block admits exactly M5 and M8: %s; pinned %s"
+                        % (", ".join(sorted(exception_ids)) or "none", ", ".join(ABSTAIN_EXCEPTION_IDS)))
+    if not_m8:
+        problems.append("f_v5 is not M8 where parse_judge_block admits exactly M5 and M8: %s"
+                        % ", ".join(sorted(not_m8)))
+    return problems
+
+
+def judge_admitted_modes(jv, v):
+    """The set of modes M1-M8 whose ::JUDGE{v5.0} answer with vector v passes jv.parse_judge_block."""
+    return {m for m in sorted(MODE_STRATA) if judge_answer_parses(jv, v, m)}
 
 
 def judge_answer_parses(jv, v, mode):

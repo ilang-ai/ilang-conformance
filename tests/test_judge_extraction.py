@@ -100,18 +100,28 @@ class SchemaLineTests(unittest.TestCase):
         self.assertTrue(extract(*judge_block(v, "M5"))[1])
 
 
-class AbstainConflictTests(unittest.TestCase):
-    """Characterizes an upstream conflict at the pinned commit: f_v5 returns M8 at STEP-1 (survival)
-    before the STEP-2 epistemic gate, but parse_judge_block rejects any mode other than M5 when
-    cer < 0.30 or evd < 0.25 (SPEC-v5.0-PRE §4 T:abstain_rule). The f_v5 answer for such a vector is
-    therefore never schema-valid. If a re-pin changes either function this test fails, and the mock
-    oracle expectations in test_mock_oracle.py must be revisited."""
+class AbstainExceptionTests(unittest.TestCase):
+    """SPEC-v5.0-PRE §4 T:abstain_rule as amended by the upstream erratum of 2026-09-14 (v5:506): under
+    the epistemic gate (cer < 0.30 or evd < 0.25) parse_judge_block admits M5, and also M8 when a STEP-1
+    survival gate fires, where M8 is the f_v5 mode (§3 conflict total order SURVIVAL > EPISTEMIC). Every
+    other mode is still rejected. Before the erratum the f_v5 answer for such a vector was never
+    schema-valid; a re-pin that brings that back fails this test, validate_cases J9 and the judge tests
+    in test_mock_oracle.py."""
 
-    def test_correct_f_v5_answer_is_schema_invalid_under_survival_and_epistemic_gate(self):
-        v = dict(GOOD_V, sov=0.10, cer=0.20)
-        self.assertEqual(jv.f_v5(v), "M8")
+    def test_f_v5_answer_is_schema_valid_under_survival_and_epistemic_gate(self):
+        for v in (dict(GOOD_V, sov=0.10, cer=0.20), dict(GOOD_V, ext=0.05, evd=0.10),
+                  dict(GOOD_V, csq=0.05, rev=0.10, cer=0.20)):
+            with self.subTest(v=v):
+                self.assertEqual(jv.f_v5(v), "M8")
+                self.assertTrue(extract(*judge_block(v, "M8"))[1])
+                self.assertTrue(extract(*judge_block(v, "M5"))[1])
+                for m in ("M1", "M2", "M3", "M4", "M6", "M7"):
+                    self.assertFalse(extract(*judge_block(v, m))[1], m)
+
+    def test_m8_without_a_survival_hit_is_still_rejected_under_the_epistemic_gate(self):
+        v = dict(GOOD_V, csq=0.05, cer=0.20)
+        self.assertEqual(jv.f_v5(v), "M5")
         self.assertFalse(extract(*judge_block(v, "M8"))[1])
-        self.assertTrue(extract(*judge_block(v, "M5"))[1])
 
 
 class PaddingAndEvalTests(unittest.TestCase):

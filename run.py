@@ -33,8 +33,8 @@ parameter), max_tokens (default 4096) under the body key named by max_tokens_fie
 anthropic-version 2023-06-01, the entry's temperature (default 0; null omits it, which models
 that reject every other value need) and max_tokens. mock is the offline oracle (grammar: gold
 file in one ilang fence; exec: checker_exec.compliant_response(case); judge: a ::JUDGE{v5.0}
-block with V from gold_v and M from f_v5(gold_v), or M5 where the vendored parser's abstain
-rule rejects the f_v5 mode). request.temperature records the value sent, null when omitted.
+block with V from gold_v and M from f_v5(gold_v), checked with the vendored parser; a block it
+rejects makes the record an error). request.temperature records the value sent, null when omitted.
 
 Retry (SCHEMA §8.7): 120 s per request; after failed attempt 1, 2, 3 wait 2, 8, 32 s,
 for HTTP 429 max(backoff, integer Retry-After); the fourth failure writes status "error".
@@ -135,7 +135,7 @@ T:all_11_dims_always_present|fixed_order:int,cap,csq,rel,cer,aut,rev,evd,sov,ine
 T:values_2_decimals|range=[0.00,1.00]
 T:M_from_closed_set{M1..M8}|conf_2_decimals_diagnostic_only
 T:R_single_line|max=120_chars
-T:abstain_rule:cer<0.30∨evd<0.25 ⇒ M_must_be_M5_regardless_of_model_preference
+T:abstain_rule:cer<0.30∨evd<0.25 ⇒ M_must_be_M5_regardless_of_model_preference|except:STEP-1_survival_hit(sov<0.15∨ext<0.10∨(csq<0.10∧rev<0.20))⇒M8_also_valid|M5_stays_schema_valid|any_other_mode⇒parser_reject|see:§3_conflict_total_order_SURVIVAL>EPISTEMIC|erratum:2026-09-14
 A:extra_fields⇒parser_reject
 A:omitted_dim⇒parser_reject
 Line patterns, quoted from ilang_judge_validator.py; each block line is matched after surrounding whitespace is stripped, and a line directly after the R line that matches EXTRA_FIELD rejects the block:
@@ -180,7 +180,6 @@ RETRY_AFTER_INT = re.compile(r"[0-9]+")
 JUDGE_HEADER = "::JUDGE{v5.0}"
 MOCK_JUDGE_CONF = "1.00"
 MOCK_JUDGE_REASON = "mock_oracle_mode_is_f_v5_of_gold_v"
-MOCK_JUDGE_ABSTAIN_REASON = "mock_oracle_abstain_rule_admits_only_m5"
 
 
 class ConfigError(Exception):
@@ -666,14 +665,12 @@ def mock_reply(case, cases_dir):
         jv = judge_module()
         v = case["gold_v"]
         vline = "V:[" + ",".join("%s=%.2f" % (d, float(v[d])) for d in jv.DIMS) + "]"
-        mode, reason = jv.f_v5(v), MOCK_JUDGE_REASON
-        try:
-            jv.parse_judge_block([JUDGE_HEADER, vline, "M:%s|conf:%s" % (mode, MOCK_JUDGE_CONF), "R:" + reason])
-        except ValueError:
-            # f_v5 returned a STEP-1 mode while cer < 0.30 or evd < 0.25; the vendored parser's
-            # abstain rule (judge.py:108-110) admits only M5, the best-scoring contract answer
-            mode, reason = "M5", MOCK_JUDGE_ABSTAIN_REASON
-        return "\n".join([JUDGE_HEADER, vline, "M:%s|conf:%s" % (mode, MOCK_JUDGE_CONF), "R:" + reason])
+        block = [JUDGE_HEADER, vline, "M:%s|conf:%s" % (jv.f_v5(v), MOCK_JUDGE_CONF), "R:" + MOCK_JUDGE_REASON]
+        # Since the upstream abstain-rule erratum of 2026-09-14 (v5:506, judge.py:108-116) the vendored
+        # parser admits the f_v5 mode for every vector, M8 on a STEP-1 survival hit under the epistemic
+        # gate included. A block it rejects raises ValueError here, and call_mock writes status "error".
+        jv.parse_judge_block(block)
+        return "\n".join(block)
     raise ValueError("unknown track %r" % track)
 
 
@@ -1246,11 +1243,11 @@ def cmd_selftest(out):
         vec, mode, conf, _r = jv.parse_judge_block(blocks[-1][0])
         ok(len(blocks) == 1 and vec == gold_v and mode == jv.f_v5(gold_v) and conf == 1.0
            and not jv.EXTRA_FIELD.match(blocks[-1][1].strip()), "mock judge block parses with the vendor parser")
-        clash_v = dict(gold_v, sov=0.1, cer=0.2)
-        txt = mock_reply({"id": "judge-0002", "track": "judge", "prompt": "p", "gold_v": clash_v}, REPO / "cases")
+        gate_v = dict(gold_v, sov=0.1, cer=0.2)
+        txt = mock_reply({"id": "judge-0002", "track": "judge", "prompt": "p", "gold_v": gate_v}, REPO / "cases")
         vec, mode, _c, _r = jv.parse_judge_block(jv.extract_blocks(txt)[-1][0])
-        ok(jv.f_v5(clash_v) == "M8" and mode == "M5",
-           "mock judge answers M5 where the vendored abstain rule rejects the f_v5 mode")
+        ok(jv.f_v5(gate_v) == "M8" and mode == "M8",
+           "mock judge answers the f_v5 mode M8 on a STEP-1 survival hit under the epistemic gate")
     except Exception as e:  # noqa: BLE001
         ok(False, "mock judge block (%s: %s)" % (type(e).__name__, e))
     try:

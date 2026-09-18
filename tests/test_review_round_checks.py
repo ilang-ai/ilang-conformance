@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """Checks added in the review round that are proposed for cases/SCHEMA.md but not yet in it:
-validate_cases.py G12 (delimited must_contain strings) and J9 (abstain-rule conflict pin),
-score.py --latest refusal while a newer run is unfinished (book §8 third command), and lint temp
-files inside the run directory (book §8 RULE u24_is_shared)."""
+validate_cases.py G12 (delimited must_contain strings) and J9 (abstain-rule pin under the upstream
+erratum of 2026-09-14), score.py --latest refusal while a newer run is unfinished (book §8 third
+command), and lint temp files inside the run directory (book §8 RULE u24_is_shared)."""
 
 import json
 import shutil
 import tempfile
+import types
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -58,18 +59,35 @@ class UndelimitedAssertionTests(unittest.TestCase):
         self.assertEqual(bad, [])
 
 
-class AbstainConflictPinTests(unittest.TestCase):
-    def test_pin_matches_the_vendored_parser_and_m5_is_admitted(self):
-        jv = score.vendor_module("ilang_judge_validator")
-        cases = support.load_cases(REAL, "judge")
-        got = sorted(c["id"] for c in cases
-                     if not validate_cases.judge_answer_parses(jv, c["gold_v"], jv.f_v5(c["gold_v"])))
-        self.assertEqual(got, validate_cases.ABSTAIN_CONFLICT_IDS)
-        by_id = {c["id"]: c for c in cases}
+class AbstainExceptionPinTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.jv = score.vendor_module("ilang_judge_validator")
+        cls.pairs = [(c["id"], c["gold_v"]) for c in support.load_cases(REAL, "judge")]
+
+    def test_pin_matches_the_vendored_parser(self):
+        self.assertEqual(validate_cases.abstain_pin_problems(self.jv, self.pairs), [])
+        got = sorted(cid for cid, v in self.pairs if validate_cases.judge_admitted_modes(self.jv, v) == {"M5", "M8"})
+        self.assertEqual(got, validate_cases.ABSTAIN_EXCEPTION_IDS)
+        by_id = dict(self.pairs)
         for cid in got:
             with self.subTest(id=cid):
-                self.assertEqual(jv.f_v5(by_id[cid]["gold_v"]), "M8")
-                self.assertTrue(validate_cases.judge_answer_parses(jv, by_id[cid]["gold_v"], "M5"))
+                self.assertEqual(self.jv.f_v5(by_id[cid]), "M8")
+
+    def test_a_parser_without_the_erratum_fails_j9(self):
+        real = self.jv
+
+        def pre_erratum_parse(lines):
+            vec, mode, conf, reason = real.parse_judge_block(lines)
+            if (vec["cer"] < 0.30 or vec["evd"] < 0.25) and mode != "M5":
+                raise ValueError("abstain rule violated: epistemic gate requires M5")
+            return vec, mode, conf, reason
+
+        old = types.SimpleNamespace(f_v5=real.f_v5, parse_judge_block=pre_erratum_parse)
+        pinned = ", ".join(validate_cases.ABSTAIN_EXCEPTION_IDS)
+        self.assertEqual(validate_cases.abstain_pin_problems(old, self.pairs),
+                         ["ids whose f_v5 answer parse_judge_block rejects: %s; required none" % pinned,
+                          "ids where parse_judge_block admits exactly M5 and M8: none; pinned %s" % pinned])
 
 
 class LatestSelectionTests(unittest.TestCase):
