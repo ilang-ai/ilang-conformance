@@ -562,7 +562,9 @@ def http_transport(url, headers, body, timeout):
         sock.settimeout(left())
         resp = conn.getresponse()
         chunks = []
-        while True:
+        # A reply with `Connection: close` (or HTTP/1.0) closes the socket once its body is read;
+        # stop there instead of setting a timeout on a closed socket (OSError, a false network error).
+        while not resp.isclosed():
             sock.settimeout(left())
             chunk = resp.read(65536)
             if not chunk:
