@@ -4,6 +4,10 @@ Conformance test set for the I-Lang protocol. Every model reachable over an API 
 
 Tracks: grammar (120 cases), exec (100), judge (100). Standard library only.
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22864929.svg)](https://doi.org/10.5281/zenodo.22864929)
+
+**Citation:** [CITATION.cff](CITATION.cff); Zenodo archives each release. Concept DOI [10.5281/zenodo.22864929](https://doi.org/10.5281/zenodo.22864929) (all versions); 1.0.0 is [10.5281/zenodo.22864930](https://doi.org/10.5281/zenodo.22864930).
+
 ## Results
 
 45 model runs, 18 to 20 September 2026: 34 complete runs are ranked in [report/SCOREBOARD.md](report/SCOREBOARD.md), 12 are listed separately because a relay, not the model, changed what could be answered. The highest weighted total so far is 0.8417; no model has reached L1. Every score is reproducible from its run records with `score.py` at the commit named on the board.
