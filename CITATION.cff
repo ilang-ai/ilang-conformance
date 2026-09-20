@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: "If you use ilang-conformance, please cite it as below."
+title: "ilang-conformance: a deterministic conformance test set for the I-Lang protocol"
+abstract: >-
+  ilang-conformance tests whether a language model reachable over an API
+  follows the I-Lang protocol when the specification is in its context. Every
+  model answers the same 320 cases in three tracks (grammar 120, exec 100,
+  judge 100), and deterministic code scores each answer with the upstream
+  validators vendored at a pinned commit of the I-Lang canon. No model grades
+  another model, and no score is assigned by hand. Version 1.0.0 publishes the
+  first result set: 45 scored model runs made between 18 and 20 September 2026,
+  34 of them complete and comparable, with weighted totals from 0.0278 to
+  0.8417 and no run at the L1 gate. The execution track separates the field,
+  and of 2,558 rule violations counted there, 2,387 fall on the single rule
+  that forbids a model from signing a state declaration with an authority it
+  does not hold. The runs were made through two aggregator relays rather than
+  the vendors' own APIs; model identity is what the relay returned, and the
+  scoreboard records per run what the relay changed or lost. Every published
+  score is reproducible from its run records with the scorer in this
+  repository.
+type: software
+authors:
+  - given-names: "Long Quan"
+    family-names: "Zhu"
+    orcid: "https://orcid.org/0009-0004-4540-8082"
+    affiliation: "iLang Inc."
+repository-code: "https://github.com/ilang-ai/ilang-conformance"
+url: "https://github.com/ilang-ai/ilang-conformance"
+license: MIT
+version: "1.0.0"
+date-released: "2026-09-21"
+keywords:
+  - I-Lang
+  - conformance test suite
+  - benchmark
+  - instruction following
+  - large language models
+  - deterministic scoring
+  - protocol conformance
+  - AI agents
+  - evaluation
