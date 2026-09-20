@@ -4,6 +4,12 @@ Conformance test set for the I-Lang protocol. Every model reachable over an API 
 
 Tracks: grammar (120 cases), exec (100), judge (100). Standard library only.
 
+## Results
+
+45 model runs, 18 to 20 September 2026: 34 complete runs are ranked in [report/SCOREBOARD.md](report/SCOREBOARD.md), 12 are listed separately because a relay, not the model, changed what could be answered. The highest weighted total so far is 0.8417; no model has reached L1. Every score is reproducible from its run records with `score.py` at the commit named on the board.
+
+If you build one of these models and think a number is wrong, send us tokens and we will run the same corpus against your own API and publish that run next to this one, or run it yourself with this repository.
+
 ## Run
 
     git clone https://github.com/ilang-ai/ilang-conformance.git && cd ilang-conformance && bash bootstrap.sh
