@@ -1,12 +1,12 @@
 cff-version: 1.2.0
 message: "If you use ilang-conformance, please cite it as below."
-title: "ilang-conformance: a deterministic conformance test set for the I-Lang protocol"
+title: "ilang-conformance: a deterministic conformance test set for the iLang protocol"
 abstract: >-
   ilang-conformance tests whether a language model reachable over an API
-  follows the I-Lang protocol when the specification is in its context. Every
+  follows the iLang protocol when the specification is in its context. Every
   model answers the same 320 cases in three tracks (grammar 120, exec 100,
   judge 100), and deterministic code scores each answer with the upstream
-  validators vendored at a pinned commit of the I-Lang canon. No model grades
+  validators vendored at a pinned commit of the iLang canon. No model grades
   another model, and no score is assigned by hand. Version 1.0.0 publishes the
   first result set: 45 scored model runs made between 18 and 20 September 2026,
   34 of them complete and comparable, with weighted totals from 0.0278 to
@@ -30,7 +30,7 @@ license: MIT
 version: "1.0.0"
 date-released: "2026-09-21"
 keywords:
-  - I-Lang
+  - iLang
   - conformance test suite
   - benchmark
   - instruction following

@@ -1,6 +1,6 @@
 # ilang-conformance
 
-Conformance test set for the I-Lang protocol. Every model reachable over an API answers the same cases, and deterministic code scores each answer with the upstream validators pinned in `vendor/`. No model grades another model.
+Conformance test set for the iLang protocol. Every model reachable over an API answers the same cases, and deterministic code scores each answer with the upstream validators pinned in `vendor/`. No model grades another model.
 
 Tracks: grammar (120 cases), exec (100), judge (100). Standard library only.
 
