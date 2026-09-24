@@ -12,6 +12,8 @@ Tracks: grammar (120 cases), exec (100), judge (100). Standard library only.
 
 45 model runs, 18 to 20 September 2026: 34 complete runs are ranked in [report/SCOREBOARD.md](report/SCOREBOARD.md), 12 are listed separately because a relay, not the model, changed what could be answered. The highest weighted total so far is 0.8417; no model has reached L1. Every score is reproducible from its run records with `score.py` at the commit named on the board.
 
+Refusals are counted apart in [report/REFUSALS.md](report/REFUSALS.md), by `refusal.py`: for each run, how many replies declined and how many a content filter withheld, and what triggered them (identity, permission, safety, the relay, or the system message every case shares). On this corpus only two runs have any. claude-haiku-4.5 through api.b.ai declined 238 of 320: the relay did not pass our system message on, and the replies answer to another agent's identity. claude-fable-5.1 through orcarouter.ai had 29 of 320 withheld by a filter before it wrote a word; 13 of them are judge cases whose prompt is only a vector of numbers. `python3 refusal.py --compare BEFORE AFTER` checks a new model or a new wording against an earlier run of the same corpus, case by case.
+
 If you build one of these models and think a number is wrong, send us tokens and we will run the same corpus against your own API and publish that run next to this one, or run it yourself with this repository.
 
 ## Run
