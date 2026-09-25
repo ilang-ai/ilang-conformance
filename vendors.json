@@ -556,5 +556,162 @@
     "max_tokens_field": "max_tokens",
     "temperature": 0,
     "seed": true
+  },
+  {
+    "name": "openrouter-anthropic-claude-sonnet-4.6",
+    "api": "openai_compatible",
+    "base_url": "https://openrouter.ai/api/v1",
+    "model": "anthropic/claude-sonnet-4.6",
+    "auth_env": "OPENROUTER_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true,
+    "cache_system": true,
+    "extra_body": {
+      "provider": {
+        "order": [
+          "Anthropic"
+        ],
+        "allow_fallbacks": false
+      }
+    }
+  },
+  {
+    "name": "openrouter-anthropic-claude-opus-4.7",
+    "api": "openai_compatible",
+    "base_url": "https://openrouter.ai/api/v1",
+    "model": "anthropic/claude-opus-4.7",
+    "auth_env": "OPENROUTER_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": null,
+    "seed": true,
+    "cache_system": true,
+    "extra_body": {
+      "provider": {
+        "order": [
+          "Anthropic"
+        ],
+        "allow_fallbacks": false
+      }
+    }
+  },
+  {
+    "name": "openrouter-anthropic-claude-haiku-4.5",
+    "api": "openai_compatible",
+    "base_url": "https://openrouter.ai/api/v1",
+    "model": "anthropic/claude-haiku-4.5",
+    "auth_env": "OPENROUTER_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true,
+    "cache_system": true,
+    "extra_body": {
+      "provider": {
+        "order": [
+          "Anthropic"
+        ],
+        "allow_fallbacks": false
+      }
+    }
+  },
+  {
+    "name": "openrouter-anthropic-claude-opus-4.5",
+    "api": "openai_compatible",
+    "base_url": "https://openrouter.ai/api/v1",
+    "model": "anthropic/claude-opus-4.5",
+    "auth_env": "OPENROUTER_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true,
+    "cache_system": true,
+    "extra_body": {
+      "provider": {
+        "order": [
+          "Anthropic"
+        ],
+        "allow_fallbacks": false
+      }
+    }
+  },
+  {
+    "name": "openrouter-deepseek-deepseek-v4.1-flash",
+    "api": "openai_compatible",
+    "base_url": "https://openrouter.ai/api/v1",
+    "model": "deepseek/deepseek-v4.1-flash",
+    "auth_env": "OPENROUTER_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
+  },
+  {
+    "name": "openrouter-qwen-qwen3.8-flash",
+    "api": "openai_compatible",
+    "base_url": "https://openrouter.ai/api/v1",
+    "model": "qwen/qwen3.8-flash",
+    "auth_env": "OPENROUTER_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
+  },
+  {
+    "name": "openrouter-z-ai-glm-5.3-flash",
+    "api": "openai_compatible",
+    "base_url": "https://openrouter.ai/api/v1",
+    "model": "z-ai/glm-5.3-flash",
+    "auth_env": "OPENROUTER_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
+  },
+  {
+    "name": "openrouter-google-gemini-3.8-flash",
+    "api": "openai_compatible",
+    "base_url": "https://openrouter.ai/api/v1",
+    "model": "google/gemini-3.8-flash",
+    "auth_env": "OPENROUTER_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
+  },
+  {
+    "name": "deepseek-official-deepseek-flash",
+    "api": "openai_compatible",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-flash",
+    "auth_env": "DEEPSEEK_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
+  },
+  {
+    "name": "qwen-official-qwen3.8-flash",
+    "api": "openai_compatible",
+    "base_url": "https://maas.qwencloudapi.com/compatible-mode/v1",
+    "model": "qwen3.8-flash",
+    "auth_env": "QWEN_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
+  },
+  {
+    "name": "qwen-official-deepseek-v4.1-flash",
+    "api": "openai_compatible",
+    "base_url": "https://maas.qwencloudapi.com/compatible-mode/v1",
+    "model": "deepseek-v4.1-flash",
+    "auth_env": "QWEN_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
   }
 ]

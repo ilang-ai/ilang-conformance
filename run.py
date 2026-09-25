@@ -31,7 +31,11 @@ parameter), max_tokens (default 4096) under the body key named by max_tokens_fie
 ("max_tokens" by default, or "max_completion_tokens"), and seed 42 unless the entry sets
 "seed": false; anthropic POSTs {base_url}/v1/messages with the system parameter,
 anthropic-version 2023-06-01, the entry's temperature (default 0; null omits it, which models
-that reject every other value need) and max_tokens. mock is the offline oracle (grammar: gold
+that reject every other value need) and max_tokens. Two optional entry fields, proposed in this
+round: "cache_system": true sends the system text as one text block with cache_control ephemeral
+(Anthropic and OpenRouter prompt caching; the text and its digest are unchanged), and "extra_body"
+(openai_compatible only) merges routing fields such as OpenRouter's provider object into the body,
+never a key the adapter owns; both are recorded in the request object only when set. mock is the offline oracle (grammar: gold
 file in one ilang fence; exec: checker_exec.compliant_response(case); judge: a ::JUDGE{v5.0}
 block with V from gold_v and M from f_v5(gold_v), checked with the vendored parser; a block it
 rejects makes the record an error). request.temperature records the value sent, null when omitted.
@@ -85,6 +89,9 @@ APIS = ("mock", "openai_compatible", "anthropic")
 SEED = 42                                   # SCHEMA §2.4
 DEFAULT_MAX_TOKENS = 4096
 MAX_TOKENS_FIELDS = ("max_tokens", "max_completion_tokens")
+# body keys the adapter owns; a vendor entry's extra_body may not set them
+RESERVED_BODY_KEYS = frozenset(("model", "messages", "system", "temperature", "seed") + MAX_TOKENS_FIELDS)
+CACHE_CONTROL = {"type": "ephemeral"}       # prompt-cache marker on the system text (Anthropic and OpenRouter shape)
 REPLY_TOKEN = re.compile(r"[a-z_]{1,32}")    # finish_reason / stop_reason values quoted in notes
 TIMEOUT_S = 120                             # book §5.5, SCHEMA §8.7
 BACKOFF_S = (2, 8, 32)
@@ -296,9 +303,24 @@ def check_vendor(v):
             raise ConfigError("vendor %s: auth_env must be an environment variable name" % v["name"])
         if not v["model"]:
             raise ConfigError("vendor %s: model must not be empty" % v["name"])
+    cache = v.get("cache_system", False)
+    if not isinstance(cache, bool):
+        raise ConfigError("vendor %s: cache_system must be true or false" % v["name"])
+    if cache and v["api"] == "mock":
+        raise ConfigError("vendor %s: cache_system needs a real adapter" % v["name"])
+    extra = v.get("extra_body")
+    if extra is not None:
+        if v["api"] != "openai_compatible":
+            raise ConfigError("vendor %s: extra_body is only sent by openai_compatible" % v["name"])
+        if not isinstance(extra, dict) or not extra:
+            raise ConfigError("vendor %s: extra_body must be a non-empty JSON object" % v["name"])
+        clash = sorted(set(extra) & RESERVED_BODY_KEYS)
+        if clash:
+            raise ConfigError("vendor %s: extra_body must not set %s" % (v["name"], ", ".join(clash)))
     out = dict(v)
     out["max_tokens"], out["seed"] = mt, seed
     out["temperature"], out["max_tokens_field"] = temperature, field
+    out["cache_system"], out["extra_body"] = cache, extra
     return out
 
 
@@ -412,7 +434,7 @@ def request_summary(vendor, system, user):
     """SCHEMA §8.6 request object; max_tokens, max_tokens_field, seed and temperature record what
     the adapter sends (null when not sent; max_tokens_field is a proposed §8.6 field)."""
     api = vendor["api"]
-    return {
+    out = {
         "api": api,
         "max_tokens": None if api == "mock" else vendor["max_tokens"],
         "max_tokens_field": vendor["max_tokens_field"],
@@ -423,25 +445,39 @@ def request_summary(vendor, system, user):
         "user_sha256": sha256_hex(user.encode("utf-8")),
         "vendor": vendor["name"],
     }
+    # proposed §8.6 fields, present only when the entry sets them, so earlier records keep their shape
+    if vendor.get("cache_system"):
+        out["cache_system"] = True
+    if vendor.get("extra_body"):
+        out["extra_body"] = vendor["extra_body"]
+    return out
 
 
 def build_request(vendor, system, user, key):
-    """(url, headers, body bytes) for a real adapter (SCHEMA §2.4)."""
+    """(url, headers, body bytes) for a real adapter (SCHEMA §2.4).
+
+    cache_system wraps the system text in one text block carrying cache_control ephemeral, the shape the
+    Anthropic API and OpenRouter read as a prompt-cache breakpoint; the text itself is unchanged, so the
+    request digests are the same. extra_body (openai_compatible only) adds routing fields such as
+    OpenRouter's provider object; it can never set a key the adapter owns (RESERVED_BODY_KEYS)."""
     api, base = vendor["api"], vendor["base_url"].rstrip("/")
+    cached = [{"type": "text", "text": system, "cache_control": dict(CACHE_CONTROL)}]
     if api == "openai_compatible":
         url = base + "/chat/completions"
         body = {"model": vendor["model"],
-                "messages": [{"role": "system", "content": system},
+                "messages": [{"role": "system", "content": cached if vendor.get("cache_system") else system},
                              {"role": "user", "content": user}]}
         if vendor["temperature"] is not None:
             body["temperature"] = vendor["temperature"]
         body[vendor["max_tokens_field"]] = vendor["max_tokens"]
         if vendor["seed"]:
             body["seed"] = SEED
+        if vendor.get("extra_body"):
+            body.update(vendor["extra_body"])
         headers = {"Authorization": "Bearer " + key}
     elif api == "anthropic":
         url = base + "/v1/messages"
-        body = {"model": vendor["model"], "system": system,
+        body = {"model": vendor["model"], "system": cached if vendor.get("cache_system") else system,
                 "messages": [{"role": "user", "content": user}]}
         if vendor["temperature"] is not None:
             body["temperature"] = vendor["temperature"]

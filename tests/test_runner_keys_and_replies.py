@@ -188,11 +188,37 @@ class SamplingFieldTests(unittest.TestCase):
         self.assertEqual(runner.request_summary(vendor, "S", "U")["max_tokens_field"], "max_completion_tokens")
 
     def test_invalid_entries_are_configuration_errors(self):
-        for extra in ({"temperature": 0.7}, {"temperature": True}, {"max_tokens_field": "tokens"}):
+        for extra in ({"temperature": 0.7}, {"temperature": True}, {"max_tokens_field": "tokens"},
+                      {"cache_system": "yes"}, {"extra_body": []}, {"extra_body": {}},
+                      {"extra_body": {"model": "other"}}, {"extra_body": {"max_tokens": 1}}):
             with self.subTest(extra=extra), self.assertRaises(runner.ConfigError):
                 openai_vendor(**extra)
         with self.assertRaises(runner.ConfigError):
             anthropic_vendor(max_tokens_field="max_completion_tokens")
+        with self.assertRaises(runner.ConfigError):
+            anthropic_vendor(extra_body={"provider": {"order": ["Anthropic"]}})
+        with self.assertRaises(runner.ConfigError):
+            runner.check_vendor({"name": "m", "api": "mock", "base_url": "", "model": "m", "auth_env": "", "cache_system": True})
+
+    def test_cache_system_and_extra_body(self):
+        routing = {"provider": {"order": ["Anthropic"], "allow_fallbacks": False}}
+        vendor = openai_vendor(cache_system=True, extra_body=routing)
+        body = json.loads(runner.build_request(vendor, "S", "U", "k")[2])
+        self.assertEqual(body["messages"][0], {"role": "system", "content": [
+            {"type": "text", "text": "S", "cache_control": {"type": "ephemeral"}}]})
+        self.assertEqual(body["messages"][1], {"role": "user", "content": "U"})
+        self.assertEqual(body["provider"], routing["provider"])
+        self.assertEqual((body["model"], body["temperature"], body["max_tokens"], body["seed"]), ("stub/model", 0, 64, 42))
+        summary = runner.request_summary(vendor, "S", "U")
+        self.assertEqual((summary["cache_system"], summary["extra_body"]), (True, routing))
+        self.assertEqual(summary["system_sha256"], runner.request_summary(openai_vendor(), "S", "U")["system_sha256"])
+        plain = runner.request_summary(openai_vendor(), "S", "U")
+        self.assertNotIn("cache_system", plain)
+        self.assertNotIn("extra_body", plain)
+        self.assertEqual(json.loads(runner.build_request(openai_vendor(), "S", "U", "k")[2])["messages"][0]["content"], "S")
+        anth = anthropic_vendor(cache_system=True)
+        self.assertEqual(json.loads(runner.build_request(anth, "S", "U", "k")[2])["system"],
+                         [{"type": "text", "text": "S", "cache_control": {"type": "ephemeral"}}])
 
     def test_shipped_vendor_entries(self):
         entries = json.loads((support.REPO / "vendors.json").read_bytes())
