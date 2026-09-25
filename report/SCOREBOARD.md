@@ -6,11 +6,13 @@ Every number here is produced by `score.py` in this repository from the corpus i
 
 For time reasons, every model here except three was run through a single aggregator relay, **api.b.ai**, between 18 and 20 September 2026. That relay had problems with claude-fable-5.1, so that model was run through another relay, **orcarouter.ai**; the two free models dated 2026-09-18 were run through OrcaRouter as well.
 
-Model identity is what the relay returned; it was not checked against any vendor's own API. A relay sits between this corpus and the model: it can add a system prompt of its own, cut an answer short, or run out of credit in the middle of a run. Where that happened it is named under "Known interference" below, and the affected runs are kept out of the ranking.
+Model identity is what the relay returned; it was not checked against any vendor's own API. A relay sits between this corpus and the model: it can add a system prompt of its own, alter the text of a reply, cut an answer short, or run out of credit in the middle of a run. Where that happened it is named under "Known interference" below, and the affected runs are kept out of the ranking.
+
+**Correction of 2026-09-25.** The board first published on 2026-09-21 ranked claude-sonnet-4.6 and claude-opus-4.7 at places 33 and 34 with scores near zero, and said their upper-cased keys were the models' own doing. They were not: the relay re-cased the replies (interference 5 below). Both runs are now listed with the runs that are not comparable, and the ranking holds 32 runs.
 
 ## Results
 
-Complete runs only: all 320 cases answered, no request errors.
+Complete runs only: all 320 cases answered, no request errors, no interference from the relay.
 
 | # | model | relay | date | weighted_total | grammar | exec | judge_jcs | judge_schema | L1 | note |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -46,8 +48,6 @@ Complete runs only: all 320 cases answered, no request errors.
 | 30 | gpt-5.4-mini | api.b.ai | 2026-09-19 | 0.3617 | 0.5333 | 0.0000 | 0.5836 | 0.8800 | below_L1 |  |
 | 31 | gpt-5.4-nano | api.b.ai | 2026-09-19 | 0.2306 | 0.1833 | 0.0000 | 0.5547 | 0.8200 | below_L1 |  |
 | 32 | gpt-5-nano | api.b.ai | 2026-09-19 | 0.2074 | 0.0833 | 0.0000 | 0.5943 | 0.9100 | below_L1 |  |
-| 33 | claude-sonnet-4.6 | api.b.ai | 2026-09-19 | 0.0284 | 0.0500 | 0.0200 | 0.0130 | 0.0000 | below_L1 | keys in upper case (E302) |
-| 34 | claude-opus-4.7 | api.b.ai | 2026-09-18 | 0.0278 | 0.0583 | 0.0100 | 0.0130 | 0.0000 | below_L1 | keys in upper case (E302) |
 
 ## Runs that are not comparable
 
@@ -56,9 +56,11 @@ These ran against the same corpus, but something outside the model changed what 
 | model | relay | date | weighted_total | missing or refused | why |
 |---|---|---|---|---|---|
 | claude-haiku-4.5 | api.b.ai | 2026-09-18 | 0.0039 | 262 of 320 refused | refused to answer under the persona the relay added (interference 1) |
-| claude-opus-4.6 | api.b.ai | 2026-09-18 | 0.0576 | 97 of 320 | relay credit exhausted mid-run |
-| claude-opus-4.8 | api.b.ai | 2026-09-18 | 0.0622 | 194 of 320 | relay credit exhausted mid-run |
-| claude-opus-5 | api.b.ai | 2026-09-18 | 0.0156 | 269 of 320 | relay credit exhausted mid-run |
+| claude-opus-4.6 | api.b.ai | 2026-09-18 | 0.0576 | 97 of 320 | relay credit exhausted mid-run; 204 of the 223 replies re-cased to upper case (interference 5) |
+| claude-opus-4.7 | api.b.ai | 2026-09-18 | 0.0278 | 0 of 320 | 268 of 320 replies re-cased to upper case by the relay (interference 5) |
+| claude-opus-4.8 | api.b.ai | 2026-09-18 | 0.0622 | 194 of 320 | relay credit exhausted mid-run; 111 of the 126 replies re-cased to upper case (interference 5) |
+| claude-opus-5 | api.b.ai | 2026-09-18 | 0.0156 | 269 of 320 | relay credit exhausted mid-run; 41 of the 51 replies re-cased to upper case (interference 5) |
+| claude-sonnet-4.6 | api.b.ai | 2026-09-19 | 0.0284 | 0 of 320 | 262 of 320 replies re-cased to upper case by the relay (interference 5) |
 | gemini-3.1-pro | api.b.ai | 2026-09-19 | 0.6560 | 36 of 320 | transport errors (timeouts, 429, 503) |
 | gemini-3.6-flash | api.b.ai | 2026-09-19 | 0.5826 | 7 of 320 | transport errors (timeouts, 429, 503) |
 | glm-5.1 | api.b.ai | 2026-09-19 | 0.5865 | 3 of 320 | transport errors (timeouts, 429, 503) |
@@ -78,7 +80,7 @@ These ran against the same corpus, but something outside the model changed what 
 
 **4. A content filter (orcarouter.ai).** claude-fable-5.1 returned 29 of 320 replies empty with `finish_reason: content_filter` (12 exec, 3 grammar, 14 judge). Those cases score as failures too.
 
-Two results look like interference but are not: claude-sonnet-4.6 and claude-opus-4.7 wrote structurally correct I-Lang with the keys in upper case (`PATH=` instead of `path=`), which the canon validator rejects with `E302`. That is the model not following the specification, and it is scored as such.
+**5. Replies re-cased to upper case (api.b.ai, Claude channel).** Five Claude runs came back with the modifier and field keys in upper case (`PATH=` for `path=`, `STATE:` for `state:`), which the canon validators reject with `E302` whatever the reply says: claude-opus-4.7 in 268 of 320 replies (grammar 88 of 120, exec 80 of 100, judge 100 of 100), claude-sonnet-4.6 in 262 of 320 (104, 58, 100), and, among the runs the credit exhaustion had already cut short, claude-opus-4.6 in 204 of 223, claude-opus-4.8 in 111 of 126 and claude-opus-5 in 41 of 51. claude-opus-4.5, claude-sonnet-4.5, claude-sonnet-5 and claude-haiku-4.5 through the same relay have none. On 2026-09-25 the same two requests (judge-0003, exec-0003) were sent to claude-opus-4.7 and claude-sonnet-4.6 through another relay, aisa.one: both answered in lower case with the same vector and the same mode as the upper-cased api.b.ai replies, and the relay reported far fewer prompt tokens for the identical request (opus-4.7 judge 44,129 against 69,292 on api.b.ai; exec 19,138 against 30,223; sonnet-4.6 judge 32,465 against 39,369; exec 13,907 against 17,235). The content is the model's; the casing, and roughly 4,000 to 25,000 extra prompt tokens per request, are the relay's. The board of 2026-09-21 called these two results the model's own failure; that was wrong, and this entry replaces it. `refusal.py` now counts upper-cased replies per run (`report/REFUSALS.md`).
 
 ## For model vendors
 

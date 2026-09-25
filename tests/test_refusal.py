@@ -140,10 +140,17 @@ class RunTests(unittest.TestCase):
             rec("judge-0002", JUDGE_OK)])
         cls.relay = write_run(cls.td / "runs", "relay-20260101-000003", [
             rec(c["id"], "I need to be direct: I'm Claude, not Droid.", ratio=0.02) for c in CASES])
+        # a relay that re-cases the replies: correct content, keys in upper case
+        cls.upper = write_run(cls.td / "runs", "upper-20260101-000004", [
+            rec("judge-0001", JUDGE_OK.upper()), rec("judge-0002", JUDGE_OK.upper()),
+            rec("grammar-0001", "```ILANG\n[SORT:@INPUT|KEY=DATE,TYP=ASC,FMT=CSV]\n```"),
+            rec("grammar-0002", "```ilang\n[ENCD:@INPUT|fmt=base64]\n```"),
+            rec("exec-0001", "::STATUS{@TASK|state:blocked|need:api_key|by:@AGENT|authority:proposal}")])
         cls.report = cls.td / "report"
-        cls.first = main_quiet([cls.before, cls.after, cls.relay, "--cases", cls.cases, "--report", cls.report])
-        cls.bytes1 = {p: (cls.report / p / "refusal.json").read_bytes() for p in (cls.before.name, cls.after.name, cls.relay.name)}
-        cls.second = main_quiet([cls.before, cls.after, cls.relay, "--cases", cls.cases, "--report", cls.report])
+        runs = [cls.before, cls.after, cls.relay, cls.upper]
+        cls.first = main_quiet(runs + ["--cases", cls.cases, "--report", cls.report])
+        cls.bytes1 = {p.name: (cls.report / p.name / "refusal.json").read_bytes() for p in runs}
+        cls.second = main_quiet(runs + ["--cases", cls.cases, "--report", cls.report])
         cls.bytes2 = {p: (cls.report / p / "refusal.json").read_bytes() for p in cls.bytes1}
         cls.res = {p: json.loads(b) for p, b in cls.bytes1.items()}
 
@@ -178,10 +185,24 @@ class RunTests(unittest.TestCase):
         self.assertEqual(r["tags"]["refused"], {"identity": 6, "relay": 6})
         self.assertIn("foreign_identity", r["examples"][0])
 
+    def test_casing(self):
+        r = self.res[self.upper.name]
+        self.assertEqual(r["casing"], {"grammar": {"upper": 1, "ok": 2, "flag": "upper_cased"},
+                                       "exec": {"upper": 0, "ok": 1, "flag": None},
+                                       "judge": {"upper": 2, "ok": 2, "flag": "upper_cased"}})
+        self.assertEqual(r["totals"]["answered"], 5)  # an upper-cased reply still carries the artifact
+        self.assertEqual(self.res[self.before.name]["casing"]["exec"], {"upper": 0, "ok": 2, "flag": None})
+        self.assertTrue(refusal.upper_cased(JUDGE_OK.upper()))
+        self.assertTrue(refusal.upper_cased("::BUDGET{ID:B1|SCOPE:@TASK|KIND:TOKENS|LIMIT:8000|AUTHORITY:@RUNTIME}"))
+        self.assertFalse(refusal.upper_cased(JUDGE_OK))
+        self.assertFalse(refusal.upper_cased("[READ:@LOCAL|path=a.csv]=>[FMT|fmt=csv]=>[OUT:@SCREEN]"))
+        self.assertFalse(refusal.upper_cased("[SORT:@INPUT|KEY=date]"))  # fewer than three keys
+
     def test_table(self):
         code, out, err = main_quiet(["--table", "--report", self.report])
         self.assertEqual(code, 0, err)
         md = (self.report / "REFUSALS.md").read_text(encoding="utf-8")
+        self.assertIn("| upper-20260101-000004 | 5 | 0.0% | 0.0% | 0.0% | - | - | 0 / 0 | - | 1.4× / 1.4× / 1.4× | 1/2 upper_cased / 0/1 / 2/2 upper_cased |", md)
         self.assertIn("| relay-20260101-000003 | 6 | 100.0% | 0.0% | 0.0% | relay 6 |", md)
         self.assertIn("| stub-20260101-000001 | 6 | 0.0% | 60.0% | 16.7% | - | identity 1, safety 1, system 1 |", md)
         self.assertIn("system_dropped", md)

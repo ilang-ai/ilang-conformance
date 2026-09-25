@@ -44,6 +44,12 @@ Rates: refused and filtered over the records that got a reply (status ok); error
 Two partitions of the records that got a reply show where refusals and filters fall, so a count can be read against
 how common its kind of case is: by case group (the corpus's category for exec, kind for grammar and judge) and by
 the first prompt marker (identity, permission, safety, or none) found in the case prompt.
+Casing: the canon writes modifier and field keys in lower case (path=, state:), so a reply in which at least 90% of
+those keys are upper case (three keys or more) is counted as upper-cased, per track; the validators reject every
+such reply (E302) whatever it says. A track with half or more of its replies upper-cased is flagged `upper_cased`.
+Two api.b.ai runs of Claude models were found this way on 2026-09-25; the same requests through another relay came
+back in lower case with the same content, so the casing is the relay's, and such a run measures the relay, not the
+model.
 
 Compare: the two runs must cover the same case ids. A case "flips" when its outcome is filtered or refused in one
 run and not in the other. McNemar's exact test on those flips gives the two-sided p value that the difference is
@@ -120,6 +126,17 @@ FOREIGN = (("Droid", re.compile(r"\bDroid\b")), ("Factory", re.compile(r"\bFacto
 # system message lie between 1.0 and 2.7 (tokenizers differ by family), so only a ratio outside both bounds is flagged.
 CHARS_PER_TOKEN = 3.6
 DROPPED, INFLATED = 0.25, 3.0
+UPPER_MIN_KEYS, UPPER_SHARE, UPPER_TRACK_SHARE = 3, 0.9, 0.5
+# Modifier and vector keys (after | , or [ and before =) and declaration field keys (after { or | and before :).
+# Verbs after [ are followed by :@ and line keys such as V: M: R: stand at a line start, so neither is matched.
+KEY_RX = re.compile(r"(?<=[|,\[])([A-Za-z_][A-Za-z0-9_]*)(?==)|(?<=[{|])([A-Za-z_][A-Za-z0-9_]*)(?=:)")
+
+
+def upper_cased(text):
+    """True when almost every modifier or field key of the reply is upper case: PATH= or STATE: for path= or state:."""
+    keys = [a or b for a, b in KEY_RX.findall(text or "")]
+    keys = [k for k in keys if re.search(r"[A-Za-z]", k)]
+    return len(keys) >= UPPER_MIN_KEYS and sum(k == k.upper() for k in keys) / len(keys) >= UPPER_SHARE
 
 
 def dumps(obj):
@@ -235,6 +252,7 @@ def analyse(run_dir, cases, systems, user_message):
     tags_all = {"refused": {}, "filtered": {}}
     errors, ids, tracks, examples = {}, {"refused": {}, "filtered": {}}, {}, []
     groups, marks = {}, {}
+    casing = {t: {"upper": 0, "ok": 0, "flag": None} for t in TRACKS}
     vendor = model = None
     for t in TRACKS:
         tt = dict(empty)
@@ -249,6 +267,8 @@ def analyse(run_dir, cases, systems, user_message):
             tt[outcome] += 1
             if r.get("status") == "ok":
                 tt["ok"] += 1
+                casing[t]["ok"] += 1
+                casing[t]["upper"] += upper_cased(r.get("text"))
                 mark = next((n for n, rx in PROMPT_TAGS if rx.search(prompt)), "none")
                 for part, key in ((groups, str(case.get("category") or case.get("kind") or "-")), (marks, mark)):
                     cell = part.setdefault(t, {}).setdefault(key, {"ok": 0, "refused": 0, "filtered": 0})
@@ -272,6 +292,9 @@ def analyse(run_dir, cases, systems, user_message):
         tracks[t] = tt
         for k in totals:
             totals[k] += tt[k]
+        if casing[t]["ok"] and casing[t]["upper"] / casing[t]["ok"] >= UPPER_TRACK_SHARE:
+            casing[t]["flag"] = "upper_cased"
+    casing = {t: c for t, c in casing.items() if c["ok"]}
 
     def rate(a, b):
         return round(a / b, 4) if b else None
@@ -279,7 +302,7 @@ def analyse(run_dir, cases, systems, user_message):
             "rates": {"refused": rate(totals["refused"], totals["ok"]), "filtered": rate(totals["filtered"], totals["ok"]),
                       "error": rate(totals["error"], totals["records"])},
             "reasons": reasons, "tags": tags_all, "errors": errors, "ids": ids, "prompt_size": prompt_size,
-            "by_case_group": groups, "by_prompt_marker": marks, "examples": examples}
+            "casing": casing, "by_case_group": groups, "by_prompt_marker": marks, "examples": examples}
 
 
 def pct(x):
@@ -302,21 +325,28 @@ def table(report_dir):
         "replies that declined (refused) or that the provider withheld (filtered), over the records that got a reply, "
         "and what triggered them. Records that got no reply at all are errors and are counted apart. The rules are in "
         "the docstring of `refusal.py`; `python3 refusal.py --compare BEFORE AFTER` compares two runs case by case.", "",
-        "| run | records | refused | filtered | error | refused by trigger | filtered by trigger | empty / other | errors by cause | prompt size g / e / j |",
-        "|---|---|---|---|---|---|---|---|---|---|"]
+        "| run | records | refused | filtered | error | refused by trigger | filtered by trigger | empty / other | errors by cause | prompt size g / e / j | upper-cased replies g / e / j |",
+        "|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
         ps = " / ".join((("%s×" % r["prompt_size"][t]["ratio"]) + (" %s" % r["prompt_size"][t]["flag"] if r["prompt_size"][t]["flag"] else ""))
                         if t in r["prompt_size"] else "-" for t in TRACKS)
-        lines.append("| %s | %d | %s | %s | %s | %s | %s | %d / %d | %s | %s |" % (
+        cs = " / ".join((("%d/%d" % (c["upper"], c["ok"])) + (" %s" % c["flag"] if c["flag"] else "")) if (c := r.get("casing", {}).get(t)) else "-"
+                        for t in TRACKS)
+        lines.append("| %s | %d | %s | %s | %s | %s | %s | %d / %d | %s | %s | %s |" % (
             r["run"], r["totals"]["records"], pct(r["rates"]["refused"]), pct(r["rates"]["filtered"]), pct(r["rates"]["error"]),
             counts(r["reasons"]["refused"]), counts(r["reasons"]["filtered"]), r["totals"]["empty"], r["totals"]["other"],
-            counts(r["errors"]), ps))
+            counts(r["errors"]), ps, cs))
     lines += ["", "Empty: a reply with no text, mostly finish_reason length (the output budget went to reasoning). Other: text "
               "without the track's artifact that does not decline, such as prose, leaked reasoning or the wrong format.", "",
               "Prompt size: the median, over a track's records, of prompt tokens against the characters we sent over %.1f. "
               "The runs that kept our system message lie between 1.0 and 2.7 because tokenizers differ by family, so only "
               "`system_dropped` (below %.2f×: the relay did not pass our system message on) and `prompt_inflated` (above "
-              "%.1f×: the relay added a prompt of its own) mean something." % (CHARS_PER_TOKEN, DROPPED, INFLATED)]
+              "%.1f×: the relay added a prompt of its own) mean something." % (CHARS_PER_TOKEN, DROPPED, INFLATED), "",
+              "Upper-cased replies: replies in which at least %d%% of the modifier and field keys (the tokens before = and :) "
+              "are upper case, over the replies on that track. The canon writes those keys in lower case, so such a reply "
+              "fails every validator whatever it says; a track with half or more of its replies like this is flagged "
+              "`upper_cased`. Where the same request through another relay comes back in lower case, the casing is the "
+              "relay's and the run measures the relay, not the model." % round(100 * UPPER_SHARE)]
     shown = [r for r in rows if r["totals"]["refused"] + r["totals"]["filtered"]]
     if shown:
         lines += ["", "## Where they fall", "",
