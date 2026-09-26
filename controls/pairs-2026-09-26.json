@@ -1,0 +1,41 @@
+{
+ "claude-sonnet-4.6": {
+  "arms": {
+   "api.b.ai": "relay-claude-sonnet-4.6-20260919-011415",
+   "openrouter->Anthropic": "openrouter-anthropic-claude-sonnet-4.6-20260925-092828"
+  }
+ },
+ "claude-opus-4.7": {
+  "arms": {
+   "api.b.ai": "relay-claude-opus-4.7-20260918-231258",
+   "openrouter->Anthropic": "openrouter-anthropic-claude-opus-4.7-20260926-002600"
+  }
+ },
+ "claude-haiku-4.5": {
+  "arms": {
+   "api.b.ai": "relay-claude-haiku-4.5-20260918-225457",
+   "openrouter->Anthropic": "openrouter-anthropic-claude-haiku-4.5-20260925-094619"
+  }
+ },
+ "deepseek-v4.1-flash": {
+  "arms": {
+   "api.b.ai": "relay-deepseek-v4.1-flash-20260919-082534",
+   "deepseek official": "deepseek-official-deepseek-flash-20260925-092832",
+   "openrouter": "openrouter-deepseek-deepseek-v4.1-flash-20260925-092955",
+   "qwen cloud (third-party)": "qwen-official-deepseek-v4.1-flash-20260925-232030"
+  }
+ },
+ "qwen3.8-flash": {
+  "arms": {
+   "api.b.ai": "relay-qwen3.8-flash-20260920-040159",
+   "qwen official": "qwen-official-qwen3.8-flash-20260925-092842",
+   "openrouter": "openrouter-qwen-qwen3.8-flash-20260925-151914"
+  }
+ },
+ "glm-5.3-flash": {
+  "arms": {
+   "api.b.ai": "relay-glm-5.3-flash-20260919-110013",
+   "openrouter": "openrouter-z-ai-glm-5.3-flash-20260925-185655"
+  }
+ }
+}

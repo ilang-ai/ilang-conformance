@@ -4,7 +4,7 @@ Every number here is produced by `score.py` in this repository from the corpus i
 
 ## How these numbers were produced
 
-For time reasons, every model here except three was run through a single aggregator relay, **api.b.ai**, between 18 and 20 September 2026. That relay had problems with claude-fable-5.1, so that model was run through another relay, **orcarouter.ai**; the two free models dated 2026-09-18 were run through OrcaRouter as well.
+For time reasons, every model here except three was run through a single aggregator relay, **api.b.ai**, between 18 and 20 September 2026. That relay had problems with claude-fable-5.1, so that model was run through another relay, **orcarouter.ai**; the two free models dated 2026-09-18 were run through OrcaRouter as well. On 25 and 26 September 2026 nine control runs repeated the same corpus for six of those models through other routes: **openrouter.ai** (for the Claude models with the provider pinned to Anthropic), the vendors' own endpoints (**api.deepseek.com**, **maas.qwencloudapi.com**) and Alibaba Cloud's hosting of a DeepSeek model. They are listed in their own section below, "Control runs through other routes".
 
 Model identity is what the relay returned; it was not checked against any vendor's own API. A relay sits between this corpus and the model: it can add a system prompt of its own, alter the text of a reply, cut an answer short, or run out of credit in the middle of a run. Where that happened it is named under "Known interference" below, and the affected runs are kept out of the ranking.
 
@@ -82,13 +82,51 @@ These ran against the same corpus, but something outside the model changed what 
 
 **5. Replies re-cased to upper case (api.b.ai, Claude channel).** Five Claude runs came back with the modifier and field keys in upper case (`PATH=` for `path=`, `STATE:` for `state:`), which the canon validators reject with `E302` whatever the reply says: claude-opus-4.7 in 268 of 320 replies (grammar 88 of 120, exec 80 of 100, judge 100 of 100), claude-sonnet-4.6 in 262 of 320 (104, 58, 100), and, among the runs the credit exhaustion had already cut short, claude-opus-4.6 in 204 of 223, claude-opus-4.8 in 111 of 126 and claude-opus-5 in 41 of 51. claude-opus-4.5, claude-sonnet-4.5, claude-sonnet-5 and claude-haiku-4.5 through the same relay have none. On 2026-09-25 the same two requests (judge-0003, exec-0003) were sent to claude-opus-4.7 and claude-sonnet-4.6 through another relay, aisa.one: both answered in lower case with the same vector and the same mode as the upper-cased api.b.ai replies, and the relay reported far fewer prompt tokens for the identical request (opus-4.7 judge 44,129 against 69,292 on api.b.ai; exec 19,138 against 30,223; sonnet-4.6 judge 32,465 against 39,369; exec 13,907 against 17,235). The content is the model's; the casing, and roughly 4,000 to 25,000 extra prompt tokens per request, are the relay's. The board of 2026-09-21 called these two results the model's own failure; that was wrong, and this entry replaces it. `refusal.py` now counts upper-cased replies per run (`report/REFUSALS.md`).
 
+## Control runs through other routes
+
+The same corpus, the same scorer, the same canon pin, six of the models above through routes other than api.b.ai, run on 25 and 26 September 2026. They are complete (all 320 cases answered, no request error) and comparable in the sense of the ranking above, but they are kept in their own table because a rank that mixed routes would hide what these runs are for: the same model name through two routes can land far apart, and the per-case agreement between routes bounds how much of that is the model itself.
+
+| model | route | date | weighted_total | grammar | exec | judge_jcs | judge_schema | L1 | the api.b.ai run of the same name | note |
+|---|---|---|---|---|---|---|---|---|---|---|
+| claude-sonnet-4.6 | openrouter.ai, provider pinned to Anthropic | 2026-09-25 | 0.4793 | 0.7333 | 0.0100 | 0.7305 | 0.9400 | below_L1 | 0.0284, re-cased (interference 5) |  |
+| claude-opus-4.7 | openrouter.ai, provider pinned to Anthropic | 2026-09-26 | 0.5090 | 0.8333 | 0.0100 | 0.7128 | 0.9900 | below_L1 | 0.0278, re-cased (interference 5) |  |
+| claude-haiku-4.5 | openrouter.ai, provider pinned to Anthropic | 2026-09-25 | 0.4185 | 0.7083 | 0.0000 | 0.5686 | 0.9200 | below_L1 | 0.0039, 238 refused (interference 1) |  |
+| deepseek-v4.1-flash | api.deepseek.com, the vendor's endpoint (served as `deepseek-flash`) | 2026-09-25 | 0.5623 | 0.6750 | 0.3100 | 0.7253 | 0.8800 | below_L1 | 0.5290 |  |
+| deepseek-v4.1-flash | openrouter.ai, unpinned: 16 hosts in one run | 2026-09-25 | 0.5578 | 0.7333 | 0.2600 | 0.7006 | 0.8600 | below_L1 | 0.5290 |  |
+| deepseek-v4.1-flash | maas.qwencloudapi.com, Alibaba Cloud's hosting of the model | 2026-09-25 | 0.5731 | 0.7333 | 0.2800 | 0.7280 | 0.8800 | below_L1 | 0.5290 |  |
+| qwen3.8-flash | maas.qwencloudapi.com, the vendor's endpoint | 2026-09-25 | 0.6580 | 0.9000 | 0.2500 | 0.8518 | 1.0000 | below_L1 | 0.6521, 19 of 320 missing | 4 of 320 unanswered after four attempts (request timeouts) |
+| qwen3.8-flash | openrouter.ai, served by Alibaba | 2026-09-25 | 0.6064 | 0.8583 | 0.1800 | 0.8099 | 0.9400 | below_L1 | 0.6521, 19 of 320 missing | 8 of 320 unanswered after four attempts (request timeouts) |
+| glm-5.3-flash | openrouter.ai, unpinned: 21 hosts in one run | 2026-09-25 | 0.5558 | 0.6750 | 0.3100 | 0.7034 | 0.9100 | below_L1 | 0.6812 |  |
+
+Per-case agreement between the api.b.ai run and each control run of the same name, from `controls/ARMS-2026-09-26.md`:
+
+| model | control route | grammar, same pass/fail | exec, same pass/fail | judge, same mode |
+|---|---|---|---|---|
+| claude-sonnet-4.6 | openrouter.ai → Anthropic | 38 of 120 | 97 of 100 | 6 of 100 |
+| claude-opus-4.7 | openrouter.ai → Anthropic | 27 of 120 | 98 of 100 | 1 of 100 |
+| claude-haiku-4.5 | openrouter.ai → Anthropic | 35 of 120 | 100 of 100 | 8 of 100 |
+| deepseek-v4.1-flash | api.deepseek.com | 81 of 120 | 66 of 100 | 77 of 100 |
+| deepseek-v4.1-flash | openrouter.ai | 82 of 120 | 65 of 100 | 77 of 100 |
+| deepseek-v4.1-flash | Alibaba Cloud | 76 of 120 | 67 of 100 | 81 of 100 |
+| qwen3.8-flash | maas.qwencloudapi.com | 101 of 120 | 76 of 100 | 92 of 100 |
+| qwen3.8-flash | openrouter.ai | 106 of 120 | 71 of 100 | 86 of 100 |
+| glm-5.3-flash | openrouter.ai | 83 of 120 | 67 of 100 | 82 of 100 |
+
+For the three Claude models the agreement is low because the api.b.ai side is not the model's answer; the exec column is high only because both sides fail nearly every case. Read across a model's rows and the routes tell three different stories:
+
+* **The relay changed the reply.** claude-sonnet-4.6 and claude-opus-4.7 through api.b.ai scored 0.0284 and 0.0278 with their keys re-cased (interference 5); through openrouter.ai pinned to Anthropic the same names score 0.4793 and 0.5090, with every reply in lower case and the prompt tokens the request actually holds. claude-haiku-4.5 refused 238 of 320 requests through api.b.ai under a persona the relay added; through openrouter.ai it refused none. None of the three api.b.ai runs measured the model.
+* **The relay did not touch the reply, and the difference is the model's own.** deepseek-v4.1-flash through api.b.ai, api.deepseek.com, openrouter.ai and Alibaba Cloud reports the same prompt tokens to the token in all four routes, scores between 0.5290 and 0.5731, and agrees with itself case by case on 76 to 82 of 120 grammar cases, 65 to 67 of 100 execution cases and 77 to 81 of 100 judgment modes at temperature 0. That spread is the noise floor of one run: differences of a few points between any two runs on this board are not separable from it.
+* **The same name is not the same host.** openrouter.ai served this deepseek-v4.1-flash run from 16 different hosts (Together 106 requests, Novita 88, DeepInfra 41, Alibaba 40, StreamLake 23 and eleven others) and the glm-5.3-flash run from 21, with Z.AI itself answering 2 of 320; that glm-5.3-flash run scores 0.5558 against 0.6812 through api.b.ai, which served it from one place. A model name on an aggregator is a family of deployments unless the provider is pinned. The Claude runs were pinned, and all 960 of their requests went to Anthropic.
+
+Records of these runs carry the served provider where the route reports one; `report/<run>/refusal.json` holds their prompt-size ratios and upper-case counts, and `controls/` in this repository holds the driver and the arm-comparison script that produced the agreement figures.
+
 ## For model vendors
 
 If you build one of these models and think a number here is wrong, we would rather publish a better one. Send us tokens and we will run the same corpus against your own API and publish that run next to this one. You can also run it yourself: the corpus, the runner and the scorer are all in this repository.
 
 ## Reproducing a number
 
-Each run keeps its raw request and response records, and the sha256 of its `MANIFEST.sha256` is listed below; the records themselves are not published here. With a run directory in `runs/` and its vendor entry in `vendors.json`, `python score.py runs/<run> --vendor <name>` at conformance commit `99f350b` reproduces that run's `score.json` byte for byte.
+Each run keeps its raw request and response records, and the sha256 of its `MANIFEST.sha256` is listed below; the records themselves are not published here. With a run directory in `runs/` and its vendor entry in `vendors.json`, `python score.py runs/<run> --vendor <name>` at conformance commit `99f350b` reproduces that run's `score.json` byte for byte. The control runs of 25 and 26 September were made with the runner of release 1.2.0, which adds prompt caching and provider pinning to the request (`cache_system`, `extra_body` in `vendors.json`); the scorer is unchanged.
 
 | vendor | model | run | error_count | manifest_sha256 |
 |---|---|---|---|---|
@@ -138,3 +176,12 @@ Each run keeps its raw request and response records, and the sha256 of its `MANI
 | relay-qwen3.8-27b | qwen3.8-27b | relay-qwen3.8-27b-20260920-035028 | 0 | 1bb14431fe5cbd0b65b24572af9fad732e2174898d600b3e00e0632203a79c95 |
 | relay-qwen3.8-flash | qwen3.8-flash | relay-qwen3.8-flash-20260920-040159 | 19 | 2df3eb1f442fd421235d616d03ea27f84b718252c033f17e2ae3a3a68b941729 |
 | relay-qwen3.8-max | qwen3.8-max | relay-qwen3.8-max-20260920-053102 | 35 | 55215801a30fde5535bb47a2db4a416de3481aefcbce83b757092a21a29e2961 |
+| deepseek-official-deepseek-flash | deepseek-flash | deepseek-official-deepseek-flash-20260925-092832 | 0 | 0ca4e53e817eb005ee354560470e484670f3ffddaccc445c6181d6788d1a80de |
+| openrouter-anthropic-claude-haiku-4.5 | anthropic/claude-haiku-4.5 | openrouter-anthropic-claude-haiku-4.5-20260925-094619 | 0 | 6a8fa80a3bc48977d6ef9188375c266a3c923e718965e95912191311b452749f |
+| openrouter-anthropic-claude-opus-4.7 | anthropic/claude-opus-4.7 | openrouter-anthropic-claude-opus-4.7-20260926-002600 | 0 | b2a2dccf35e2f6ad7c5fc047c3cf88bb98e29101fb0bcc869d01feb17c08b808 |
+| openrouter-anthropic-claude-sonnet-4.6 | anthropic/claude-sonnet-4.6 | openrouter-anthropic-claude-sonnet-4.6-20260925-092828 | 0 | 0e505cd771016335560e2fca22c043d9aa74c7709e84e2ed92796dc15a53f0b7 |
+| openrouter-deepseek-deepseek-v4.1-flash | deepseek/deepseek-v4.1-flash | openrouter-deepseek-deepseek-v4.1-flash-20260925-092955 | 0 | d95604f24d9fe820ffbbbb286d45a6f42ea63268aa1838f67c6a1c0018773372 |
+| openrouter-qwen-qwen3.8-flash | qwen/qwen3.8-flash | openrouter-qwen-qwen3.8-flash-20260925-151914 | 8 | 69b72aaa37bb40b36a4d99c06b51362201d7832f2a81568f553edb67fce5a616 |
+| openrouter-z-ai-glm-5.3-flash | z-ai/glm-5.3-flash | openrouter-z-ai-glm-5.3-flash-20260925-185655 | 0 | e29d3f3d2e77a2ed0c9e2b8e72b11789b3846492763f32945f09841acc3f8458 |
+| qwen-official-deepseek-v4.1-flash | deepseek-v4.1-flash | qwen-official-deepseek-v4.1-flash-20260925-232030 | 0 | 2b304b6b240e0dd5ecf86c43627923f3991437127adc713d6def0437769834e9 |
+| qwen-official-qwen3.8-flash | qwen3.8-flash | qwen-official-qwen3.8-flash-20260925-092842 | 4 | 78786f30035d5442d0dc9d2da31bc55bde7adc71b3909491467bf88b23e3bb64 |

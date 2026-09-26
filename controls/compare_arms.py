@@ -79,7 +79,8 @@ def arm_summary(run_dir, score, cases, systems, user_message):
     for t in TRACKS:
         pts = []
         for r in recs.get(t, []):
-            served[r.get("response_model")] = served.get(r.get("response_model"), 0) + 1
+            name = r.get("response_model") or "(no reply)"
+            served[name] = served.get(name, 0) + 1
             pt = refusal.prompt_tokens(r)
             if r.get("status") == "ok" and pt:
                 pts.append(pt)
