@@ -120,6 +120,21 @@ For the three Claude models the agreement is low because the api.b.ai side is no
 
 Records of these runs carry the served provider where the route reports one; `report/<run>/refusal.json` holds their prompt-size ratios and upper-case counts, and `controls/` in this repository holds the driver and the arm-comparison script that produced the agreement figures.
 
+## Runs against ilang-spec 4.3.0 (release 2.0.0 and later)
+
+From release 2.0.0 the vendored canon is ilang-spec 4.3.0, whose wording leaves decisions to code. Runs made against it carry different system prompts from everything above and are listed here, apart from the ranking. The first is the same model, route and parameters as the deepseek runs on the board (orcarouter.ai, deepseek/deepseek-v4-flash-free, temperature 0, seed 42), so the three canons can be read side by side:
+
+| canon in the system prompt | run | date | weighted_total | grammar | exec | judge_jcs | judge_schema | L1 | exec cases failing R9 |
+|---|---|---|---|---|---|---|---|---|---|
+| ilang-spec 127ba56 (the board above) | orcarouter-deepseek-free-20260918-050901 | 2026-09-18 | 0.5825 | 0.8417 | 0.1000 | 0.8429 | 1.0000 | below_L1 | 87 |
+| ilang-spec 127ba56, replicate by an outside operator | canona-deepseek-deepseek-v4-flash-free-20260924-081752 | 2026-09-24 | 0.5907 | 0.8667 | 0.1000 | 0.8413 | 0.9900 | below_L1 | 86 |
+| 127ba56 with the 26-statement rewrite (arm B of the A/B) | canonb-deepseek-deepseek-v4-flash-free-20260924-081752 | 2026-09-24 | 0.6365 | 0.8583 | 0.2500 | 0.8285 | 0.9700 | below_L1 | 68 |
+| **ilang-spec 4.3.0** (the rewrite plus the rule that the runtime's budget line is read, never re-emitted) | orcarouter-deepseek-free-20260926-034241 | 2026-09-26 | **0.7808** | 0.8417 | **0.6800** | 0.8275 | 0.9800 | below_L1 | **2** |
+
+Per case, the 4.3.0 run against arm B: 49 execution cases pass only under 4.3.0 and 6 only under B (McNemar exact p < 0.0001); R9 fails 66 cases only under B and none only under 4.3.0; grammar 101 against 103 passes (p = 0.77) and judgment 84 against 84 mode hits, both within the run-to-run noise of this model (the two 127ba56 runs above differ by 5 exec and 7 grammar flips). Under 4.3.0, 98 of 100 execution replies carry `authority:proposal`; the 32 remaining failures are 24 wrong end states, 4 R8, 2 R9 and 1 R7. Refusals and filters: zero on every one of these runs. The A/B rows are published with their per-case tables at research.ilang.ai/datasets/canon-rewrite-ab/; the 4.3.0 run's score and manifest are in `report/`.
+
+The wording of the specification in the model's context is, for this model, the difference between passing 10 and 68 of 100 execution cases. That is the single largest effect measured on this board, and it came from text, not from a model change.
+
 ## For model vendors
 
 If you build one of these models and think a number here is wrong, we would rather publish a better one. Send us tokens and we will run the same corpus against your own API and publish that run next to this one. You can also run it yourself: the corpus, the runner and the scorer are all in this repository.
@@ -185,3 +200,4 @@ Each run keeps its raw request and response records, and the sha256 of its `MANI
 | openrouter-z-ai-glm-5.3-flash | z-ai/glm-5.3-flash | openrouter-z-ai-glm-5.3-flash-20260925-185655 | 0 | e29d3f3d2e77a2ed0c9e2b8e72b11789b3846492763f32945f09841acc3f8458 |
 | qwen-official-deepseek-v4.1-flash | deepseek-v4.1-flash | qwen-official-deepseek-v4.1-flash-20260925-232030 | 0 | 2b304b6b240e0dd5ecf86c43627923f3991437127adc713d6def0437769834e9 |
 | qwen-official-qwen3.8-flash | qwen3.8-flash | qwen-official-qwen3.8-flash-20260925-092842 | 4 | 78786f30035d5442d0dc9d2da31bc55bde7adc71b3909491467bf88b23e3bb64 |
+| orcarouter-deepseek-free | deepseek/deepseek-v4-flash-free | orcarouter-deepseek-free-20260926-034241 | 0 | 60f0804134c3e7de51c6bb0611234bc8c30e8505405ac1a76599ef5528542c1e |
