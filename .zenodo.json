@@ -1,7 +1,7 @@
 {
   "title": "ilang-conformance: a deterministic conformance test set for the iLang protocol",
-  "description": "<p>ilang-conformance tests whether a language model reachable over an API follows the iLang protocol when the specification is in its context. Every model answers the same 320 cases in three tracks (grammar 120, exec 100, judge 100), and deterministic code scores each answer with the upstream validators vendored at a pinned commit of the iLang canon (ilang-ai/ilang-spec 127ba56). No model grades another model, and no score is assigned by hand. The repository ships the corpus, the case schema, the runner, the batch driver for endpoints that serve many models, the scorer, the vendored validators and their pin, and the per-run scores.</p><p>Version 1.0.0 publishes the first result set: 45 scored model runs made between 18 and 20 September 2026, 34 of them complete and comparable, alongside the score of every run and the manifest hash of its records. The weighted totals of the comparable runs range from 0.0278 to 0.8417, with a median of 0.5628; no run reached the L1 conformance gate. The execution track separates the field: its pass rate has a median of 0.0900 against a median of 0.8000 for grammar, and of 2,558 rule violations counted in that track, 2,387 fall on the single rule that forbids a model from signing a state declaration with an authority it does not hold.</p><p>Runs were made through two aggregator relays rather than the vendors' own APIs; model identity is what the relay returned and was not verified upstream. The scoreboard records, per run, the relay, the date, the records lost to credit exhaustion or transport errors, replies truncated before the answer, replies blocked by a content filter, and one model that refused most cases under an agent persona the relay added. Runs affected in that way are listed apart from the ranking. Raw request and response records are kept privately; each run's manifest hash is published so a holder of the records can prove they are the ones scored.</p><p>Every published score is reproducible: with a run directory and its vendor entry, score.py at the commit named on the scoreboard reproduces that run's score.json byte for byte.</p>",
-  "version": "1.0.0",
+  "description": "<p>ilang-conformance tests whether a language model reachable over an API follows the iLang protocol when the specification is in its context. Every model answers the same 320 cases in three tracks (grammar 120, exec 100, judge 100), and deterministic code scores each answer with the upstream validators vendored at a pinned commit of the iLang canon (ilang-ai/ilang-spec). No model grades another model, and no score is assigned by hand. The repository ships the corpus, the case schema, the runner, the batch driver for endpoints that serve many models, the scorer, the refusal track, the vendored validators and their pin, the control-run scripts, and the per-run scores.</p><p>Version 2.0.0 (2026-09-26) pins the vendored canon to ilang-spec 4.3.0, whose wording leaves decisions to code (the model perceives, code decides). Runs made from this release on are scored against that canon and are not comparable with the runs of 18 to 20 September 2026, which were made against ilang-spec 127ba56 and remain on the scoreboard as published, with the correction of 2026-09-25 and the control runs of 25 and 26 September.</p><p>The result set: 45 scored model runs of 18 to 20 September 2026, 32 of them complete and comparable, alongside the score of every run and the manifest hash of its records. The weighted totals of the comparable runs range from 0.2074 to 0.8417, with a median of 0.5640; no run reached the L1 conformance gate. The execution track separates the field: its pass rate has a median of 0.1100 against a median of 0.8292 for grammar, and of 2,362 rule violations counted in that track, 2,205 fall on the single rule that forbids a model from signing a state declaration with an authority it does not hold.</p><p>Runs were made through two aggregator relays rather than the vendors' own APIs; model identity is what the relay returned and was not verified upstream. The scoreboard records, per run, the relay, the date, the records lost to credit exhaustion or transport errors, replies truncated before the answer, replies blocked by a content filter, one model that refused most cases under an agent persona the relay added, and five Claude runs whose replies the relay re-cased to upper case, which a second relay showed to be the relay's doing. Runs affected in that way are listed apart from the ranking. Nine control runs through openrouter.ai (pinned to the Anthropic provider), the DeepSeek and Alibaba Cloud endpoints and Alibaba Cloud's hosting of DeepSeek repeat the corpus for six models and give, per case, the agreement between routes: the noise floor of a single run, and the size of what a relay can change. Raw request and response records are kept privately; each run's manifest hash is published so a holder of the records can prove they are the ones scored.</p><p>Every published score is reproducible: with a run directory and its vendor entry, score.py at the commit named on the scoreboard reproduces that run's score.json byte for byte.</p>",
+  "version": "2.0.0",
   "upload_type": "software",
   "license": "MIT",
   "access_right": "open",
@@ -21,7 +21,8 @@
     "deterministic scoring",
     "protocol conformance",
     "AI agents",
-    "evaluation"
+    "evaluation",
+    "relay interference"
   ],
   "related_identifiers": [
     {
@@ -40,6 +41,12 @@
       "identifier": "https://ilang.ai/spec/",
       "relation": "isDocumentedBy",
       "resource_type": "publication-technicalnote",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://research.ilang.ai/datasets/canon-rewrite-ab/",
+      "relation": "isSupplementedBy",
+      "resource_type": "dataset",
       "scheme": "url"
     }
   ]

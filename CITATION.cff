@@ -27,7 +27,7 @@ authors:
 repository-code: "https://github.com/ilang-ai/ilang-conformance"
 url: "https://github.com/ilang-ai/ilang-conformance"
 license: MIT
-version: "1.2.0"
+version: "2.0.0"
 date-released: "2026-09-21"
 keywords:
   - iLang

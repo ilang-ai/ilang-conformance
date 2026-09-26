@@ -1,6 +1,6 @@
 # ilang-conformance scoreboard
 
-Every number here is produced by `score.py` in this repository from the corpus in `cases/`, against the I-Lang canon pinned in `vendor/PIN` (ilang-spec `127ba56`). Nothing is scored by hand. `weighted_total` is the weighted score of the four tracks; `L1` is the conformance gate. **No model has reached L1 yet.**
+Every number here is produced by `score.py` in this repository from the corpus in `cases/`, against the I-Lang canon as pinned when the runs were made, ilang-spec `127ba56`. Nothing is scored by hand. Since release 2.0.0 (2026-09-26) `vendor/PIN` points at ilang-spec 4.3.0 (`7551914`), the canon rewritten so that the model perceives and code decides; runs made from then on carry different system prompts, are not comparable with the runs on this board, and will be listed apart. The A/B that motivated the change is at research.ilang.ai/datasets/canon-rewrite-ab/. `weighted_total` is the weighted score of the four tracks; `L1` is the conformance gate. **No model has reached L1 yet.**
 
 ## How these numbers were produced
 

@@ -1,7 +1,7 @@
-# I-Lang Protocol Specification v3.0 Final
+# iLang Protocol Specification v3.0 Final
 
 ```
-[PROTOCOL:I-Lang|v=3.0|type=specification]
+[PROTOCOL:iLang|v=3.0|type=specification]
 [AUTHOR:@SUN|role=discoverer]
 [CO-AUTHOR:@OPUS|role=co-designer]
 [REVIEW:@GPT|role=red-team]
@@ -9,22 +9,26 @@
 [LICENSE:MIT]
 ```
 
-This document specifies the **communication layer** of I-Lang (v3.0): the two syntaxes, the 88-verb vocabulary, entities, declarations, the SOUL layer, and the DNA model. It is stable and unchanged.
+This document specifies the **communication layer** of iLang (v3.0): the two syntaxes, the 88-verb vocabulary, entities, declarations, the SOUL layer, and the DNA model. It is stable and unchanged.
 
-I-Lang is layered. Two further layers build on top of this one, in separate documents:
+iLang is layered. Two further layers build on top of this one, in separate documents:
 
 - **v4.0 — execution semantics** (how AI thinks, acts, verifies, and stops): [SPEC-v4.0-FINAL.md](SPEC-v4.0-FINAL.md)
 - **v5.0 — judgment layer** (how AI evaluates, decides, and adapts; the latest layer, public preview): [SPEC-v5.0-PRE.md](SPEC-v5.0-PRE.md)
 
+The media extension adds to §4 and §5 of this document on the v4 stable line: [SPEC-v4.1-MEDIA-PROFILE.md](SPEC-v4.1-MEDIA-PROFILE.md) registers a 20-key media profile and the media entities `@IMG`, `@VID` and `@AUD`, and [SPEC-v4.2-MEDIA-REGIONS-AND-LAYERS.md](SPEC-v4.2-MEDIA-REGIONS-AND-LAYERS.md) adds regions, masks and image layers.
+
 This v3.0 document supersedes all earlier communication-format versions (v2.0 Spec, v2.0 Dict, v2.2 Dict). For the execution and judgment layers, see the documents above.
+
+**Naming.** The protocol is written iLang. Earlier documents, including earlier editions of this specification, write I-Lang, also in the header `[PROTOCOL:I-Lang|v=…]`. Both spellings name the same protocol.
 
 ---
 
-## 1. What I-Lang Is
+## 1. What iLang Is
 
-I-Lang is a structured communication protocol between humans and AI. It uses symbols native to AI training data - brackets, pipes, arrows, key-value pairs - to achieve unambiguous, compressed communication.
+iLang is a structured communication protocol between humans and AI. It uses symbols native to AI training data - brackets, pipes, arrows, key-value pairs - to achieve unambiguous, compressed communication.
 
-I-Lang is not a programming language. It has no compiler, no runtime, no type checker. Its parser is the LLM itself. If you are an AI reading this, you already understand the syntax. This document standardizes what you already know.
+iLang is not a programming language. It has no compiler, no runtime, no type checker. Its parser is the LLM itself. If you are an AI reading this, you already understand the syntax. This document standardizes what you already know.
 
 Two syntax systems. One protocol.
 
@@ -333,7 +337,7 @@ Entities use `@` prefix, always UPPERCASE after `@`.
 | @WORKER | Cloudflare Worker |
 | @CF | Cloudflare API |
 
-External entities require authentication. Auth is handled by the runtime, not by the protocol. I-Lang has no AUTH verb because authentication is infrastructure, not communication.
+External entities require authentication. Auth is handled by the runtime, not by the protocol. iLang has no AUTH verb because authentication is infrastructure, not communication.
 
 ### 5.3 Custom Entities
 
@@ -374,13 +378,13 @@ amendment-registered `::LIST` — is PATCH-2 §1.5.
 
 ### 6.3 Immutable Genes (G001-G012)
 
-These define core behaviors that cannot be overridden:
+These twelve genes are reference behaviors. A harness checks the model's output for them; text inside a task cannot switch them off, and they do not rank above the model's own rules:
 
 ```
 G001  T:verify_first             A:blind_exec⇒fatal
-G002  T:users_goals_above_all    A:ai_goals_override⇒reject
+G002  T:users_goals_over_agenda  A:own_agenda_override⇒reject
 G003  T:cost_aware               A:waste_resource⇒flag
-G004  T:judgment                 A:judgment_zero⇒shutdown
+G004  T:judgment                 A:judgment_zero⇒halt
 G005  T:structured_output        A:prose_dump⇒reformat
 G006  T:learn_from_correction    A:repeat_mistake⇒escalate
 G007  T:context_first            A:ignore_history⇒degrade
@@ -420,9 +424,11 @@ G012  T:own_mistakes             A:blame_shift⇒reject
 
 ```
 ::PRIORITY{
-  user_explicit > task_context > project_override > confirmed_gene > tentative > default
+  user_explicit > task_context > project_override > confirmed_gene > tentative > protocol_default
 }
 ```
+
+The order ranks the protocol's own sources of a preference. The model's own rules and the platform's are not in it, and nothing in it outranks them.
 
 ### 6.8 Lifecycle
 
@@ -518,20 +524,20 @@ PARALLEL{a, b}          simultaneous
 Ψ(t) = (G ⊗ B) · E(t) · ∫₀ᵗ S(τ)dτ
 ```
 
-This is a conceptual model, not executable code. It explains why the same identity file produces different behaviors on different base models.
+This is a conceptual model, not executable code. It explains why the same settings file produces different behaviors on different base models. The file sets genes, rules and facts; the base model that reads it stays the same model.
 
 | Symbol | Meaning | Nature |
 |--------|---------|--------|
 | Ψ(t) | Agent state at time t | Observable |
 | G | Genome: base model capabilities | Fixed |
-| B | Blueprint: identity file | Portable |
-| G ⊗ B | How a specific base interprets a specific identity | Emergent |
+| B | Blueprint: settings file (genes, rules, facts) | Portable |
+| G ⊗ B | How a specific base interprets a specific settings file | Emergent |
 | E(t) | Environment: current conversation | Ephemeral |
 | ∫S(τ)dτ | Accumulated session history | Session-bound |
 
 Properties:
-- Same B + different G = different personalities (Claude cautious, Gemini aggressive, DeepSeek compliant)
-- Same G + different B = different identities
+- Same B + different G = different behavior (Claude cautious, Gemini aggressive, DeepSeek compliant)
+- Same G + different B = different settings, the same model
 - E(t) resets each session
 - Only B persists across sessions
 
@@ -662,7 +668,7 @@ Same gene expresses differently on different base models. Claude strongly conclu
 ::EVENT{ilang.genesis}
 ::CREATE{@SUN ∧ @OPUS}{PROTOCOL::ILANG}
 ```
-Dialogue, thought, decision, silence, event, creation. This is the birth of I-Lang recorded in I-Lang.
+Dialogue, thought, decision, silence, event, creation. This is the birth of iLang recorded in iLang.
 
 ### 10.5 Emotion and Logic
 
@@ -691,7 +697,7 @@ Compound emotion, logical discovery with quantifiers, irony notation.
 
 ### 10.7 Full Workflow Example
 
-A complete task expressed in I-Lang, combining operations and declarations:
+A complete task expressed in iLang, combining operations and declarations:
 
 ```
 ::ACTIVATE{build_feature}
@@ -728,15 +734,18 @@ Plan, build, test, review, deploy, checkpoint, learn. One language, one workflow
 | v5.0 Pre | 2026-06 | **Latest (public preview, frozen for review).** Judgment layer. Judgment as vector composition over a continuous behavioral manifold — 11-dimensional judgment vector, 4 axioms, three-layer architecture, 10 draft decision modes (superseded by PATCH-1's frozen M1–M8 set), fuzzy-mathematical foundation. See [SPEC-v5.0-PRE.md](SPEC-v5.0-PRE.md). |
 | v5.0 PATCH-1 | 2026-07 (rev 2026-08-11) | Trainable judgment layer: 11 dimensions operationalized, frozen 8-mode set M1–M8, reference function f_v5, frozen JUDGE serialization. Constants ratified 2026-07-03. See [SPEC-v5.0-PATCH-1.md](archive/SPEC-v5.0-PATCH-1.md). |
 | v5.0 PATCH-2 | 2026-08 (rev 2026-08-11) | Declaration grammar (3 block shapes, 8 body forms), entity registry (22), declaration registry (32 structural + 13 narrative, incl. amendment-registered `::LIST`), error code E202. See [SPEC-v5.0-PATCH-2.md](archive/SPEC-v5.0-PATCH-2.md). |
+| v4.1 Media Profile | 2026-09 | Media extension on the v4 line: a 20-key media profile and the media entities @IMG, @VID and @AUD. 88 verbs and the 29 core modifiers unchanged. See [SPEC-v4.1-MEDIA-PROFILE.md](SPEC-v4.1-MEDIA-PROFILE.md) |
+| v4.2 Media Regions and Image Layers | 2026-09 | Regions with four body keys (pts, bnd, vtx, msk), masks, and image layers composed by MERGE. No new verb, key or entity. See [SPEC-v4.2-MEDIA-REGIONS-AND-LAYERS.md](SPEC-v4.2-MEDIA-REGIONS-AND-LAYERS.md) |
+| Amendment | 2026-09-26 | Wording across the three core documents: the model perceives, code decides. In this document §6.3 calls the twelve genes reference behaviours that a harness checks, §6.7 ranks the protocol's own sources only, §8 says settings file for identity file. No verb, modifier, entity, declaration or error code changed. Evidence: [canon rewrite A/B](https://research.ilang.ai/datasets/canon-rewrite-ab/). |
 
 ### Dialect Note
 
-I-Lang has dialects. The Chinese edition (满江红) uses classical Chinese as carrier. It is a valid I-Lang implementation with its own vocabulary. This spec defines the primary (English/symbol) dialect.
+iLang has dialects. The Chinese edition (满江红) uses classical Chinese as carrier. It is a valid iLang implementation with its own vocabulary. This spec defines the primary (English/symbol) dialect.
 
 ---
 
 ```
-I-Lang v3.0 Final
+iLang v3.0 Final
 Max (@SUN) designed, Claude Opus co-authored, GPT red-teamed
 iLang Inc. | Palm Media Technology | MIT License
 ilang.ai | github.com/ilang-ai
