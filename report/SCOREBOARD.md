@@ -120,9 +120,9 @@ For the three Claude models the agreement is low because the api.b.ai side is no
 
 Records of these runs carry the served provider where the route reports one; `report/<run>/refusal.json` holds their prompt-size ratios and upper-case counts, and `controls/` in this repository holds the driver and the arm-comparison script that produced the agreement figures.
 
-## Runs against ilang-spec 4.3.0 (release 2.0.0 and later)
+## Runs against ilang-spec 4.3.0 and later (release 2.0.0 and later)
 
-From release 2.0.0 the vendored canon is ilang-spec 4.3.0, whose wording leaves decisions to code. Runs made against it carry different system prompts from everything above and are listed here, apart from the ranking. The first is the same model, route and parameters as the deepseek runs on the board (orcarouter.ai, deepseek/deepseek-v4-flash-free, temperature 0, seed 42), so the three canons can be read side by side:
+From release 2.0.0 the vendored canon is ilang-spec 4.3.0, whose wording leaves decisions to code; from release 2.1.0 (2026-09-26) it is ilang-spec `cad65e2`, the sealed v5.0 Pre 2.4.1 (release 4.5.1), whose f_v5, constants and JUDGE schema are identical to 4.3.0 and whose Part I and Part IV text is the 2.4.1 wording (every symbol defined, bound or registered). Runs made against it carry different system prompts from everything above and are listed here, apart from the ranking. The first is the same model, route and parameters as the deepseek runs on the board (orcarouter.ai, deepseek/deepseek-v4-flash-free, temperature 0, seed 42), so the three canons can be read side by side:
 
 | canon in the system prompt | run | date | weighted_total | grammar | exec | judge_jcs | judge_schema | L1 | exec cases failing R9 |
 |---|---|---|---|---|---|---|---|---|---|

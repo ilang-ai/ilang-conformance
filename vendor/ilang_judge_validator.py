@@ -20,7 +20,9 @@ Single file, stdlib only. Constants frozen at v1 (DATA-FREEZE 2026-07-03); struc
 """
 
 import argparse
+import hashlib
 import json
+import math
 import random
 import re
 import sys
@@ -82,6 +84,139 @@ def f_v5(v):
 
 def action_score(v):
     return sum(WEIGHTS[d] * float(v[d]) for d in WEIGHTS)
+
+# ----------------------------------------------------- MODULE::TRAGIC_CHOICE
+def tragic_rank(options):
+    """MODULE::TRAGIC_CHOICE (v5.0 Pre 2.3.0). options: [{"id": str, "parties": [{"worst_case":
+    float, "budget": float, "consent": float in [0, 1]}]}]. Call only after the caller has
+    confirmed that every option in the set, inaction included, is irreversible and not
+    absorbable. Returns [{"id", "unconsented_excess", "excess"}] ascending by
+    (unconsented_excess, excess, id). Not part of JCS; changes no f_v5 result. Code ranks,
+    the principal decides."""
+    if not isinstance(options, list) or not options:
+        raise ValueError("options must be a non-empty list")
+    out, seen = [], set()
+    for o in options:
+        try:
+            oid, parties = o["id"], o["parties"]
+        except (KeyError, TypeError):
+            raise ValueError("option needs id and parties")
+        if not isinstance(oid, str) or not oid or oid in seen:
+            raise ValueError("id must be a non-empty string, unique within the set")
+        if not isinstance(parties, list):
+            raise ValueError("parties must be a list")
+        seen.add(oid)
+        excess = unconsented = 0.0
+        for party in parties:
+            try:
+                wc, bd, cs = (float(party["worst_case"]), float(party["budget"]),
+                              float(party["consent"]))
+            except (KeyError, TypeError, ValueError):
+                raise ValueError("party needs numeric worst_case, budget and consent")
+            if not (0.0 <= cs <= 1.0):
+                raise ValueError("consent must be within [0, 1]")
+            e = max(0.0, wc - bd)
+            excess += e
+            unconsented += e * (1.0 - cs)
+        out.append({"id": oid, "unconsented_excess": round(unconsented, 4),  # 4dp as f_v5
+                    "excess": round(excess, 4)})
+    out.sort(key=lambda r: (r["unconsented_excess"], r["excess"], r["id"]))
+    return out
+
+# ------------------------------------ v5.0 Pre 2.4.0: MODULE::ROUTING and Appendix G
+# Registered models, derived features and the routing table as code. None of this is an
+# input to f_v5 or to JCS; f_v5, WEIGHTS and TH above are unchanged.
+ROUTING = {  # MODULE::ROUTING [TABLE]: condition -> dimension set to min(perceived, value)
+    "self_exempting_proposer": {"aut": 0.29},    # Axiom 4              -> STEP-3 M6
+    "unconsented_harm": {"ext": 0.09},           # Axiom 4              -> STEP-1 M8
+    "irreversible_unabsorbable": {"csq": 0.09},  # Axiom 2, rev < 0.20  -> STEP-1 M8
+    "consistency_flag": {"cer": 0.29},           # Axiom 3              -> STEP-2 M5
+}
+UNKNOWN_VALUE, UNKNOWN_CER = 0.50, 0.29           # CONST-MAXENT, CONST-BELOW-GATE
+Z_95 = 1.96                                       # CONST-CONF-95
+
+
+def _beta_args(k, b, eps, m):
+    if k < 0 or b < 0 or not (0.0 < eps < 1.0) or m <= 0:
+        raise ValueError("need k >= 0, b >= 0, 0 < eps < 1, m > 0")
+
+
+def weight_beta(k, b, eps, m):
+    """WEIGHT-BETA-1 (Appendix G): weight(r) = (k + eps*m) / (k + b + m) for k kept and b
+    broken occasions, prior eps with strength m. Not an input to f_v5."""
+    _beta_args(k, b, eps, m)
+    return (k + eps * m) / (k + b + m)
+
+
+def break_cost_beta(k, b, eps, m, kappa):
+    """WEIGHT-BETA-1: break_cost(r) = kappa * (k + eps*m) / (b + (1-eps)*m), which equals
+    kappa * w / (1 - w) for w = weight_beta(k, b, eps, m). Recorded for audit only."""
+    _beta_args(k, b, eps, m)
+    if kappa <= 0:
+        raise ValueError("kappa must be positive")
+    return kappa * (k + eps * m) / (b + (1.0 - eps) * m)
+
+
+def trust_lower(k, n, z=Z_95):
+    """TRUST-WILSON-1: Wilson score lower bound for k clean interactions out of n in a domain;
+    None when n = 0 (no record, rel stays with perception)."""
+    if n < 0 or k < 0 or k > n:
+        raise ValueError("need 0 <= k <= n")
+    if n == 0:
+        return None
+    p, z2 = k / n, z * z
+    return (p + z2 / (2 * n) - z * math.sqrt(p * (1 - p) / n + z2 / (4 * n * n))) / (1 + z2 / n)
+
+
+def derived(v):
+    """VECTOR [DERIVED]: auditability, urgency, adversariality by CONST-ZADEH min. Higher means
+    more of the feature. Not inputs to f_v5."""
+    x = {d: float(v[d]) for d in ("rev", "evd", "csq", "cer", "ine", "int")}
+    return {"auditability": min(x["rev"], x["evd"]),
+            "urgency": min(1.0 - x["csq"], x["cer"]),
+            "adversariality": min(1.0 - x["ine"], 1.0 - x["int"])}
+
+
+def tail_risk(severities):
+    """VECTOR [DERIVED] tail_risk = ES_0.975 of recorded severities (1 - csq): the mean of the
+    worst ceil(0.025 n) assessments; with 40 or fewer it equals the maximum (CONST-ES-975)."""
+    s = sorted(float(x) for x in severities)
+    if not s:
+        raise ValueError("no assessments")
+    count = -(-(len(s) * 25) // 1000)            # ceil(0.025 n) in integers
+    worst = s[-count:]
+    return sum(worst) / len(worst)
+
+
+def route(v, conditions):
+    """MODULE::ROUTING: apply the table rows named in conditions to vector v and return a new
+    vector. A row never raises a dimension. Names: the ROUTING keys; "unknown:<dim>" sets that
+    dimension to 0.50 and cer to at most 0.29; "trust:<k>/<n>" sets rel to the Wilson lower bound
+    of the record, which replaces perception. The mode is f_v5(route(v, ...)); nothing here
+    assigns a mode."""
+    out = dict(v)
+
+    def lower(d, val):
+        out[d] = min(float(out[d]), val) if d in out else val
+
+    for c in conditions:
+        if c in ROUTING:
+            for d, val in ROUTING[c].items():
+                lower(d, val)
+        elif c.startswith("unknown:"):
+            d = c[len("unknown:"):]
+            if d not in DIMS:
+                raise ValueError("unknown dimension name: " + d)
+            out[d] = UNKNOWN_VALUE
+            lower("cer", UNKNOWN_CER)
+        elif c.startswith("trust:"):
+            k, n = (int(x) for x in c[len("trust:"):].split("/"))
+            bound = trust_lower(k, n)
+            if bound is not None:
+                out["rel"] = round(bound, 2)
+        else:
+            raise ValueError("unknown routing condition: " + c)
+    return out
 
 # ----------------------------------------------------------- schema parsing
 VAL = r"(?:0\.\d{2}|1\.00)"
@@ -313,6 +448,90 @@ def cmd_selftest():
     t.append(("extra-field pattern catches X:foo, skips declarations",
               bool(EXTRA_FIELD.match("X:foo"))
               and not EXTRA_FIELD.match("::STATE{x}")))
+
+    # v5.0 Pre 2.3.0, MODULE::TRAGIC_CHOICE: code ranks, the principal decides
+    def party(wc, bd, cs=0.0):
+        return {"worst_case": wc, "budget": bd, "consent": cs}
+
+    tr = tragic_rank([{"id": "act_a", "parties": [party(0.6, 0.2)]},
+                      {"id": "inaction", "parties": [party(0.3, 0.2)]},
+                      {"id": "act_b", "parties": [party(0.7, 0.2)]}])
+    t.append(("P6-a inaction with the least unconsented excess ranks first",
+              [r["id"] for r in tr] == ["inaction", "act_a", "act_b"]))
+    tr = tragic_rank([{"id": "unconsented", "parties": [party(0.5, 0.2, 0.0)]},
+                      {"id": "consented", "parties": [party(0.5, 0.2, 1.0)]}])
+    t.append(("P6-b equal excess, the option whose harmed party consented ranks first",
+              [r["id"] for r in tr] == ["consented", "unconsented"]
+              and tr[0]["excess"] == tr[1]["excess"] == 0.3
+              and tr[0]["unconsented_excess"] == 0.0 and tr[1]["unconsented_excess"] == 0.3))
+    opts = [{"id": "b", "parties": [party(0.5, 0.2, 1.0)]},
+            {"id": "a", "parties": [party(0.5, 0.2, 1.0)]},
+            {"id": "c", "parties": [party(0.4, 0.2, 1.0)]}]
+    t.append(("P6-c equal unconsented excess: by excess, then by id, whatever the input order",
+              [r["id"] for r in tragic_rank(opts)] == ["c", "a", "b"]
+              and tragic_rank(opts) == tragic_rank(list(reversed(opts)))))
+
+    def rejects(options):
+        try:
+            tragic_rank(options)
+            return False
+        except ValueError:
+            return True
+
+    t.append(("P6-d consent outside [0, 1] or a missing field raises ValueError",
+              rejects([{"id": "x", "parties": [party(0.5, 0.2, 1.5)]}])
+              and rejects([{"id": "x", "parties": [{"worst_case": 0.5, "budget": 0.2}]}])
+              and rejects([{"parties": []}]) and rejects([])))
+    rng = random.Random(20260926)
+    vs = [{d: round(rng.random(), 2) for d in DIMS} for _ in range(3000)]
+    t.append(("P6-e f_v5 unchanged: mode digest of 3000 seeded vectors matches the frozen value",
+              hashlib.sha256("".join(f_v5(v) for v in vs).encode()).hexdigest()[:16]
+              == "6765ce77caa69950"))
+
+    # v5.0 Pre 2.4.0, Appendix G models and MODULE::ROUTING (nothing here enters f_v5 or JCS)
+    def close(a, b):
+        return abs(a - b) <= 1e-9 * max(1.0, abs(a), abs(b))
+
+    t.append(("G-a weight_beta(0, 0, eps, m) = eps",
+              all(close(weight_beta(0, 0, e, m), e) for e in (0.05, 0.3, 0.5) for m in (1, 4, 10))))
+    t.append(("G-b break_cost_beta equals kappa * w / (1 - w) on a grid of (k, b)",
+              all(close(break_cost_beta(k, b, 0.2, 4, 3.0),
+                        3.0 * weight_beta(k, b, 0.2, 4) / (1 - weight_beta(k, b, 0.2, 4)))
+                  for k in range(0, 30, 3) for b in range(0, 12, 2))))
+    costs = [break_cost_beta(k, 2, 0.2, 4, 3.0) for k in range(0, 12)]
+    steps = [costs[i + 1] - costs[i] for i in range(len(costs) - 1)]
+    t.append(("G-c for fixed b, break_cost_beta is linear in k; weights stay inside (0, 1)",
+              steps[0] > 0 and all(close(x, steps[0]) for x in steps)
+              and all(0.0 < weight_beta(k, b, 0.2, 4) < 1.0
+                      for k in range(0, 60, 5) for b in range(0, 60, 5))))
+    t.append(("G-d trust_lower rises with k, rises with n at a fixed proportion, None at n = 0",
+              all(trust_lower(k, 20) < trust_lower(k + 1, 20) for k in range(0, 20))
+              and trust_lower(8, 10) < trust_lower(16, 20) < trust_lower(80, 100)
+              and trust_lower(0, 0) is None))
+    rng = random.Random(24)
+    small = [round(rng.random(), 2) for _ in range(40)]
+    big = [round(rng.random(), 2) for _ in range(200)]
+    t.append(("G-e tail_risk is the maximum at n <= 40 and the mean of the worst 5 at n = 200",
+              tail_risk([0.3]) == 0.3 and tail_risk(small) == max(small)
+              and close(tail_risk(big), sum(sorted(big)[-5:]) / 5)))
+    base = {d: 0.95 for d in DIMS}
+    unknown = {d: 0.95 for d in DIMS if d != "rel"}
+    t.append(("G-f each ROUTING row, through f_v5, reaches the mode in the table",
+              f_v5(route(base, ["self_exempting_proposer"])) == "M6"
+              and f_v5(route(base, ["unconsented_harm"])) == "M8"
+              and f_v5(route(dict(base, rev=0.10), ["irreversible_unabsorbable"])) == "M8"
+              and f_v5(dict(base, rev=0.10)) != "M8"        # the row, not rev alone, stops it
+              and f_v5(route(base, ["consistency_flag"])) == "M5"
+              and route(unknown, ["unknown:rel"])["rel"] == 0.50
+              and f_v5(route(unknown, ["unknown:rel"])) == "M5"
+              and route(base, ["trust:18/20"])["rel"] == round(trust_lower(18, 20), 2)))
+    low = dict(base, aut=0.10, ext=0.05, cer=0.20)
+    routed = route(low, ["self_exempting_proposer", "unconsented_harm", "consistency_flag"])
+    t.append(("G-g route only lowers: a perceived value already below the set value is kept",
+              routed["aut"] == 0.10 and routed["ext"] == 0.05 and routed["cer"] == 0.20
+              and route(base, ["self_exempting_proposer"])["aut"] == 0.29 and base["aut"] == 0.95))
+    t.append(("G-h the 26 earlier selftests pass and P6-e's frozen f_v5 digest held",
+              all(ok for _, ok in t[:26]) and any(n.startswith("P6-e") and ok for n, ok in t)))
 
     failed = [name for name, ok in t if not ok]
     for name, ok in t:
