@@ -713,5 +713,93 @@
     "max_tokens_field": "max_tokens",
     "temperature": 0,
     "seed": true
+  },
+  {
+    "name": "siliconflow-qwen-qwen3.8-27b",
+    "api": "openai_compatible",
+    "base_url": "https://api.siliconflow.cn/v1",
+    "model": "Qwen/Qwen3.8-27B",
+    "auth_env": "SILICONFLOW_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
+  },
+  {
+    "name": "siliconflow-deepseek-v4-flash",
+    "api": "openai_compatible",
+    "base_url": "https://api.siliconflow.cn/v1",
+    "model": "deepseek-ai/DeepSeek-V4-Flash",
+    "auth_env": "SILICONFLOW_API_KEY",
+    "max_tokens": 16384,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
+  },
+  {
+    "name": "siliconflow-glm-5.3",
+    "api": "openai_compatible",
+    "base_url": "https://api.siliconflow.cn/v1",
+    "model": "zai-org/GLM-5.3",
+    "auth_env": "SILICONFLOW_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
+  },
+  {
+    "name": "siliconflow-kimi-k2.6",
+    "api": "openai_compatible",
+    "base_url": "https://api.siliconflow.cn/v1",
+    "model": "Pro/moonshotai/Kimi-K2.6",
+    "auth_env": "SILICONFLOW_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
+  },
+  {
+    "name": "easyrouter-qwen3.8-max",
+    "api": "openai_compatible",
+    "base_url": "https://easyrouter.io/v1",
+    "model": "qwen3.8-max",
+    "auth_env": "EASYROUTER_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
+  },
+  {
+    "name": "easyrouter-deepseek-v4.1-flash",
+    "api": "openai_compatible",
+    "base_url": "https://easyrouter.io/v1",
+    "model": "deepseek-v4.1-flash",
+    "auth_env": "EASYROUTER_API_KEY",
+    "max_tokens": 16384,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
+  },
+  {
+    "name": "easyrouter-glm-5.3",
+    "api": "openai_compatible",
+    "base_url": "https://easyrouter.io/v1",
+    "model": "glm-5.3",
+    "auth_env": "EASYROUTER_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
+  },
+  {
+    "name": "easyrouter-kimi-k3",
+    "api": "openai_compatible",
+    "base_url": "https://easyrouter.io/v1",
+    "model": "kimi-k3",
+    "auth_env": "EASYROUTER_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": null,
+    "seed": true
   }
 ]
