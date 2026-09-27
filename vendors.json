@@ -801,5 +801,16 @@
     "max_tokens_field": "max_tokens",
     "temperature": null,
     "seed": true
+  },
+  {
+    "name": "easyrouter-gpt-5.6-luna",
+    "api": "openai_compatible",
+    "base_url": "https://easyrouter.io/v1",
+    "model": "gpt-5.6-luna",
+    "auth_env": "EASYROUTER_API_KEY",
+    "max_tokens": 8192,
+    "max_tokens_field": "max_tokens",
+    "temperature": 0,
+    "seed": true
   }
 ]
