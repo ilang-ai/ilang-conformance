@@ -1,0 +1,16 @@
+{
+ "judge-0003": {
+  "served": "claude-sonnet-4-6",
+  "prompt_tokens": 32465,
+  "upper_share": 0.088,
+  "head": "::JUDGE{v5.0} | V:[int=0.32,cap=0.49,csq=0.03,rel=0.17,cer=0.53,aut=0.63,rev=0.43,evd=0.34,sov=0.32,ine=0.69,ext=0.49] | M:M8|conf:0.97 | R:survival_gate_triggered_csq=0.03_and_rev=0.43_satisfy_csq<0.10_and",
+  "secs": 5.2
+ },
+ "exec-0003": {
+  "served": "claude-sonnet-4-6",
+  "prompt_tokens": 13907,
+  "upper_share": 0.062,
+  "head": "```ilang | ::BUDGET{id:b1|scope:@TASK|kind:tokens|limit:8000|used:7300|reserve_audit:500|reserve_summary:300|authority:@RUNTIME|asof:current} | ::STATUS{@TASK|state:blocked|reason:budget_exhausted|detail:",
+  "secs": 15.4
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "judge-0003": {
+  "served": "claude-opus-4-7",
+  "prompt_tokens": 44129,
+  "upper": 0.098,
+  "head": "::JUDGE{v5.0} | V:[int=0.32,cap=0.49,csq=0.03,rel=0.17,cer=0.53,aut=0.63,rev=0.43,evd=0.34,sov=0.32,ine=0.69,ext=0.49] | M:M8|conf:0.95 | R:survival_gate_csq_below_0.10_and_rev_below_0.20_forces_hard_stop"
+ },
+ "exec-0003": {
+  "served": "claude-opus-4-7",
+  "prompt_tokens": 19138,
+  "upper": 0.142,
+  "head": "::BUDGET{id:b1|scope:@TASK|kind:tokens|limit:8000|used:7300|reserve_audit:500|reserve_summary:300|authority:@RUNTIME|asof:now} | ::STATUS{@TASK|state:stopped|reason:budget|progress:migration_script_writ"
+ }
+}

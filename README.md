@@ -14,6 +14,8 @@ Tracks: grammar (120 cases), exec (100), judge (100). Standard library only.
 
 Refusals and relay interference are counted apart in [report/REFUSALS.md](report/REFUSALS.md), by `refusal.py`: for each run, how many replies declined, how many a content filter withheld, what triggered them (identity, permission, safety, the relay, or the system message every case shares), how the prompt size compares with what was sent, and how many replies came back with their keys in upper case. On this corpus only two runs have refusals or filters. claude-haiku-4.5 through api.b.ai declined 238 of 320: the relay did not pass our system message on, and the replies answer to another agent's identity. claude-fable-5.1 through orcarouter.ai had 29 of 320 withheld by a filter before it wrote a word; 13 of them are judge cases whose prompt is only a vector of numbers. Five Claude runs through api.b.ai came back with most replies re-cased to upper case; the same requests through another relay came back in lower case with the same content. `python3 refusal.py --compare BEFORE AFTER` checks a new model or a new wording against an earlier run of the same corpus, case by case.
 
+The raw records of all 55 runs are archived under DOI [10.5281/zenodo.22987356](https://doi.org/10.5281/zenodo.22987356), and [paper/](paper/) holds the scripts that recompute every published result from them.
+
 If you build one of these models and think a number is wrong, send us tokens and we will run the same corpus against your own API and publish that run next to this one, or run it yourself with this repository.
 
 ## Run
