@@ -38,4 +38,10 @@ API keys are read from `~/.ilang-conformance.env` (chmod 600) by variable name a
     python3 batch.py status
     python3 batch.py pack
 
+## Acceptance of an engineering book
+
+`goal/goal_check.py` reads the `::RUBRIC` of a book written in iLang, runs the items that carry an executable check, and exits with 0 only when every item passes. Items that code cannot decide wait for a person, and an item whose premise is wrong can be disputed instead of failing on every round. It runs no command and reaches no private address unless the person who starts it allows that. See [goal/](goal/).
+
+    python3 goal/goal_check.py BOOK.md
+
 Upstream: [ilang-ai/ilang-spec](https://github.com/ilang-ai/ilang-spec), pinned by commit and sha256 in `vendor/PIN`. MIT licensed.

@@ -5,3 +5,4 @@ __pycache__/
 .env*
 batch/
 controls/*.log
+*.goal-log.jsonl

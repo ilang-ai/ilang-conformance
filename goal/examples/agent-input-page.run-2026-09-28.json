@@ -1,0 +1,225 @@
+{
+ "allow_cmd": false,
+ "allow_private": false,
+ "book": "agent-input-page.md",
+ "book_key": "AGENT-INPUT-PAGE-ACCEPTANCE",
+ "book_sha256": "fc787a61669d753f8c34264b462720f8eb8e436da4dc8b1ac2244b4b59de7a7a",
+ "counts": {
+  "fail": 0,
+  "pass": 11,
+  "unknown": 5
+ },
+ "exit": 2,
+ "items": [
+  {
+   "expect": "count >=1",
+   "id": "H1",
+   "kind": "count",
+   "observed": {
+    "count": 1
+   },
+   "reason": "",
+   "seconds": 0.105,
+   "tail": "",
+   "text": "the homepage shows the sentence that says what iLang is",
+   "verdict": "pass"
+  },
+  {
+   "expect": "count 1",
+   "id": "H2",
+   "kind": "count",
+   "observed": {
+    "count": 1
+   },
+   "reason": "",
+   "seconds": 0.085,
+   "tail": "",
+   "text": "the homepage has the section Why this exists and the section opens as agreed",
+   "verdict": "pass"
+  },
+  {
+   "expect": "",
+   "id": "H3",
+   "kind": "human",
+   "observed": {},
+   "reason": "no executable check; waits for a person",
+   "seconds": 0.0,
+   "tail": "",
+   "text": "the homepage does not offer a compression rate as a reason to use iLang",
+   "verdict": "unknown"
+  },
+  {
+   "expect": "",
+   "id": "H4",
+   "kind": "human",
+   "observed": {},
+   "reason": "no executable check; waits for a person",
+   "seconds": 0.0,
+   "tail": "",
+   "text": "the structured data and llms.txt do not offer a compression rate as a reason to use iLang",
+   "verdict": "unknown"
+  },
+  {
+   "expect": "every block parses, blocks >=1",
+   "id": "H5",
+   "kind": "json",
+   "observed": {
+    "blocks": 8,
+    "valid": 8
+   },
+   "reason": "",
+   "seconds": 0.081,
+   "tail": "",
+   "text": "every JSON-LD block of the homepage parses",
+   "verdict": "pass"
+  },
+  {
+   "expect": "status 200",
+   "id": "A1",
+   "kind": "status",
+   "observed": {
+    "status": 200
+   },
+   "reason": "",
+   "seconds": 0.093,
+   "tail": "",
+   "text": "the page answers at its address",
+   "verdict": "pass"
+  },
+  {
+   "expect": "",
+   "id": "A2",
+   "kind": "human",
+   "observed": {},
+   "reason": "no executable check; waits for a person",
+   "seconds": 0.0,
+   "tail": "",
+   "text": "the text gives no dimension a value that outside content gets by default",
+   "verdict": "unknown"
+  },
+  {
+   "expect": "",
+   "id": "A3",
+   "kind": "human",
+   "observed": {},
+   "reason": "no executable check; waits for a person",
+   "seconds": 0.0,
+   "tail": "",
+   "text": "the text brings in no declaration, dimension, constant or module the specification does not have",
+   "verdict": "unknown"
+  },
+  {
+   "expect": "count 10",
+   "id": "A4",
+   "kind": "count",
+   "observed": {
+    "count": 10
+   },
+   "reason": "",
+   "seconds": 0.114,
+   "tail": "",
+   "text": "the mapping table has a heading row and one row for each of the nine kinds of attack",
+   "verdict": "pass"
+  },
+  {
+   "expect": "every link answers below 400 or 403",
+   "id": "A5",
+   "kind": "links",
+   "observed": {
+    "failing": [],
+    "let_through": [
+     {
+      "status": 403,
+      "url": "https://www.axios.com/2026/09/26/openai-anthropic-thousands-ai-security-incidents"
+     }
+    ],
+    "links": 9
+   },
+   "reason": "",
+   "seconds": 2.415,
+   "tail": "",
+   "text": "every link to another site answers, or answers 403 because the site turns programs away",
+   "verdict": "pass"
+  },
+  {
+   "expect": "count 1",
+   "id": "A6a",
+   "kind": "count",
+   "observed": {
+    "count": 1
+   },
+   "reason": "",
+   "seconds": 0.215,
+   "tail": "",
+   "text": "the W3C checker answers with its list of messages",
+   "verdict": "pass"
+  },
+  {
+   "expect": "count 0",
+   "id": "A6",
+   "kind": "count",
+   "observed": {
+    "count": 0
+   },
+   "reason": "",
+   "seconds": 0.198,
+   "tail": "",
+   "text": "the list of the W3C checker holds no error",
+   "verdict": "pass"
+  },
+  {
+   "expect": "",
+   "id": "A7",
+   "kind": "human",
+   "observed": {},
+   "reason": "no executable check; waits for a person",
+   "seconds": 0.0,
+   "tail": "",
+   "text": "the structured data passes the Rich Results Test of Google",
+   "verdict": "unknown"
+  },
+  {
+   "expect": "count >=1",
+   "id": "A8",
+   "kind": "count",
+   "observed": {
+    "count": 1
+   },
+   "reason": "",
+   "seconds": 0.099,
+   "tail": "",
+   "text": "the sitemap lists the page",
+   "verdict": "pass"
+  },
+  {
+   "expect": "count 0",
+   "id": "A9",
+   "kind": "count",
+   "observed": {
+    "count": 0
+   },
+   "reason": "",
+   "seconds": 0.13,
+   "tail": "",
+   "text": "the text a reader sees has no Chinese character and no dash used as punctuation",
+   "verdict": "pass"
+  },
+  {
+   "expect": "count >=1",
+   "id": "A10",
+   "kind": "count",
+   "observed": {
+    "count": 1
+   },
+   "reason": "",
+   "seconds": 0.083,
+   "tail": "",
+   "text": "the homepage links to the page",
+   "verdict": "pass"
+  }
+ ],
+ "rubric_sha256": "01ce82fb2199a14e7062a2e33e6f1c258f5caee37255d72966a103d5ce952f4d",
+ "time": "2026-09-28T03:26:12Z",
+ "tool": "goal-check",
+ "version": "0.1.0"
+}
