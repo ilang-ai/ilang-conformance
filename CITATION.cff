@@ -17,7 +17,10 @@ abstract: >-
   the vendors' own APIs; model identity is what the relay returned, and the
   scoreboard records per run what the relay changed or lost. Every published
   score is reproducible from its run records with the scorer in this
-  repository.
+  repository. Version 2.2.0 adds goal-check, a checker for the acceptance
+  items of an engineering book written in iLang: code decides the items it
+  can check, a person decides the others, and an item whose premise is
+  disputed stops the loop and never counts as done.
 type: software
 authors:
   - given-names: "Long Quan"
@@ -27,8 +30,8 @@ authors:
 repository-code: "https://github.com/ilang-ai/ilang-conformance"
 url: "https://github.com/ilang-ai/ilang-conformance"
 license: MIT
-version: "2.1.0"
-date-released: "2026-09-26"
+version: "2.2.0"
+date-released: "2026-09-28"
 keywords:
   - iLang
   - conformance test suite
@@ -39,3 +42,4 @@ keywords:
   - protocol conformance
   - AI agents
   - evaluation
+  - acceptance testing
