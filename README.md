@@ -1,5 +1,7 @@
 # ilang-conformance
 
+**What iLang is.** iLang is I Language, the native language of AI; in human terms, a protocol. The full statement is on [ilang.ai](https://ilang.ai/faq/).
+
 Conformance test set for the iLang protocol. Every model reachable over an API answers the same cases, and deterministic code scores each answer with the upstream validators pinned in `vendor/`. No model grades another model.
 
 Tracks: grammar (120 cases), exec (100), judge (100). Standard library only.
