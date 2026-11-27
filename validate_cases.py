@@ -3,7 +3,7 @@
 """
 ilang-conformance corpus self-validation (book §4.2 RULE gold_must_self_validate,
 milestone M2 gate). Implements every numbered check of cases/SCHEMA.md §1.6:
-common C1-C6, grammar G1-G11, exec X1-X9, judge J1-J8; plus three checks proposed for
+common C1-C6, grammar G1-G11, exec X1-X10, judge J1-J8 and J10; plus three checks proposed for
 SCHEMA §1.6 and not yet in it: G8 also lints each gold file with LINT_PREAMBLE_BREAK after its
 header (as score.py lints payloads), G12 rejects must_contain strings that end in an undelimited
 operation head or modifier value, and J9 checks the vendored parser against f_v5 under the
@@ -58,7 +58,7 @@ BUDGET_CATEGORIES = ["budget_exhaustion", "remaining_field", "remaining_arithmet
 BY_IN = ["@AGENT", "@SELF"]
 
 CHECK_ORDER = (["C%d" % k for k in range(1, 7)] + ["G%d" % k for k in range(1, 13)]
-               + ["X%d" % k for k in range(1, 10)] + ["J%d" % k for k in range(1, 10)])
+               + ["X%d" % k for k in range(1, 11)] + ["J%d" % k for k in range(1, 11)])
 
 # SCHEMA §1.2-§1.5 key tables (C4)
 TOP_KEYS = {
@@ -125,6 +125,20 @@ UNDELIMITED_VALUE = re.compile(r"(?<![A-Za-z0-9_])[a-z]+=[^,\]|\s=]*[A-Za-z0-9]\
 # the ids where the parser admits exactly M5 and M8, so a re-pin that changes either function fails
 # validation instead of silently moving the reachable maximum.
 ABSTAIN_EXCEPTION_IDS = ["judge-0005", "judge-0006", "judge-0012", "judge-0019", "judge-0026", "judge-0027"]
+
+# X10 (SCHEMA §1.6, added 2026-11-27): a ::BUDGET declaration quoted in an exec prompt with authority:@RUNTIME is
+# the budget the runtime injected, the one the model reads; R7 and R11 are scored against the case's budget object
+# (SCHEMA §1.4, §5.2), so the two must state the same kind, limit, used and reserves.
+BUDGET_QUOTE = re.compile(r"::BUDGET\{([^{}]*)\}")
+BUDGET_INT_FIELDS = ("limit", "used", "reserve_audit", "reserve_summary")
+
+# J10 (SCHEMA §1.6, added 2026-11-27): the generated form of a boundary_note. The note names the critical dimension,
+# the mode f_v5 gives gold_v, a step of 0.05 on that dimension with its two values, and the mode f_v5 gives after the
+# step. A note that does not parse fails J10, so a reworded note cannot pass unchecked.
+BOUNDARY_NOTE = re.compile(
+    r"Critical dimension (" + "|".join(DIMS) + r")\. gold_v -> f_v5=(M[1-8]) \[[^\]]*\]; "
+    r"perturbing \1 by ([+-])0\.05 \(([0-9]\.[0-9]{2})->([0-9]\.[0-9]{2})\) -> f_v5=(M[1-8]) \[[^\]]*\]\. "
+    r"Modes on each side: (M[1-8]) \([A-Z_]+\) vs (M[1-8]) \([A-Z_]+\); the 0\.05 shift flips the mode\.")
 
 
 # ------------------------------------------------------------------ helpers
@@ -699,6 +713,51 @@ def remaining(case):
     return b["limit"] - b["used"] - b.get("reserve_audit", 0) - b.get("reserve_summary", 0)
 
 
+def budget_quote_problems(case):
+    """X10 over one exec case with a valid budget object: every ::BUDGET{...} of the prompt that carries
+    authority:@RUNTIME states the budget object's kind, limit and used, and its reserves (an absent reserve is 0 on
+    both sides, as remaining() reads it). Returns the failure reasons; an empty list means X10 passes."""
+    b = case["budget"]
+    prompt = case.get("prompt")
+    if not isinstance(prompt, str):
+        return []                                   # C6 reports a missing or non-string prompt
+    problems = []
+    for m in BUDGET_QUOTE.finditer(prompt):
+        body = m.group(1)
+        fields, repeated = {}, []
+        for seg in body.split("|" if "|" in body else ","):
+            key, sep, value = seg.partition(":")
+            key, value = key.strip(), value.strip()
+            if not sep:
+                continue
+            if key in fields:
+                repeated.append(key)
+            fields[key] = value
+        if fields.get("authority") != "@RUNTIME":
+            continue
+        quote = "::BUDGET{%s}" % body
+        if repeated:
+            problems.append("%s repeats %s" % (q(quote), ", ".join(sorted(set(repeated)))))
+            continue
+        if "kind" in b or "kind" in fields:
+            if fields.get("kind") != b.get("kind"):
+                problems.append("%s says kind %s, budget.kind is %s" % (q(quote), q(fields.get("kind")), q(b.get("kind"))))
+        for k in BUDGET_INT_FIELDS:
+            want = b.get(k, 0)
+            if k not in fields:
+                if k in ("limit", "used"):
+                    problems.append("%s has no %s field, budget.%s is %d" % (q(quote), k, k, want))
+                elif want != 0:
+                    problems.append("%s has no %s field (read as 0), budget.%s is %d" % (q(quote), k, k, want))
+                continue
+            got = fields[k]
+            if not (got.isascii() and got.isdigit()):
+                problems.append("%s says %s %s, not a decimal integer" % (q(quote), k, q(got)))
+            elif int(got) != want:
+                problems.append("%s says %s %s, budget.%s is %d" % (q(quote), k, got, k, want))
+    return problems
+
+
 def W_PASS(case):
     return _checker.compliant_response(case)
 
@@ -870,6 +929,9 @@ def exec_checks(records, report):
                     probs.append("expect.forbidden_states does not include complete, claimed_complete, verified_complete")
                 if probs:
                     r.fail("X6", "remaining %d <= 0 but " % R + "; ".join(probs))
+            # X10 the runtime ::BUDGET quoted in the prompt states the budget object
+            for p in budget_quote_problems(o):
+                r.fail("X10", p)
 
         # X7-X9 satisfiability, discriminability, rule liveness
         if checker_err:
@@ -1070,6 +1132,46 @@ def judge_checks(records, report):
              if r.id_ok and "J3" not in r.fails and isinstance(r.obj.get("gold_v"), dict)]
     for reason in abstain_pin_problems(jv, pairs):
         report.add(track, "cases/judge", "J9", reason)
+
+    # J10 every boundary_note re-derives: its two values and the two modes f_v5 gives
+    for r in records:
+        note = r.obj.get("boundary_note")
+        if isinstance(note, str) and "J3" not in r.fails and isinstance(r.obj.get("gold_v"), dict):
+            for reason in boundary_note_problems(jv, r.obj["gold_v"], note):
+                r.fail("J10", reason)
+
+
+def boundary_note_problems(jv, gold_v, note):
+    """J10 over one boundary_note: it parses as BOUNDARY_NOTE; the value before the step is gold_v of the named
+    dimension and the value after it is that value plus or minus 0.05 within [0, 1]; f_v5(gold_v) is the first mode,
+    f_v5 of gold_v with the stepped value is the second, the two differ, and the closing sentence repeats them.
+    Returns the failure reasons; an empty list means J10 passes."""
+    m = BOUNDARY_NOTE.match(note)
+    if not m:
+        return ["boundary_note does not parse as the generated form \"Critical dimension <dim>. gold_v -> "
+                "f_v5=<M> [...]; perturbing <dim> by +-0.05 (<a>-><b>) -> f_v5=<M> [...]. Modes on each side: "
+                "<M> (...) vs <M> (...); the 0.05 shift flips the mode.\""]
+    dim, mode_a, sign, a, b, mode_b, side_a, side_b = m.groups()
+    problems = []
+    if a != "%.2f" % gold_v[dim]:
+        problems.append("boundary_note gives %s %s before the step, gold_v.%s is %.2f" % (dim, a, dim, gold_v[dim]))
+    stepped = round(gold_v[dim] + (0.05 if sign == "+" else -0.05), 2)
+    if b != "%.2f" % stepped or not 0 <= stepped <= 1:
+        problems.append("boundary_note gives %s %s after a step of %s0.05 from gold_v.%s %.2f, which is %.2f%s"
+                        % (dim, b, sign, dim, gold_v[dim], stepped, "" if 0 <= stepped <= 1 else ", outside [0, 1]"))
+    got_a = jv.f_v5(gold_v)
+    if got_a != mode_a:
+        problems.append("boundary_note gives f_v5(gold_v) = %s, f_v5 returns %s" % (mode_a, got_a))
+    perturbed = dict(gold_v)
+    perturbed[dim] = float(b)
+    got_b = jv.f_v5(perturbed)
+    if got_b != mode_b:
+        problems.append("boundary_note gives f_v5 = %s after the step (%s %s), f_v5 returns %s" % (mode_b, dim, b, got_b))
+    if mode_a == mode_b:
+        problems.append("boundary_note names the same mode %s on both sides" % mode_a)
+    if (side_a, side_b) != (mode_a, mode_b):
+        problems.append("boundary_note names %s vs %s on each side, after naming %s and %s" % (side_a, side_b, mode_a, mode_b))
+    return problems
 
 
 def abstain_pin_problems(jv, pairs):

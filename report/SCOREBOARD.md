@@ -2,6 +2,8 @@
 
 Every number here is produced by `score.py` in this repository from the corpus in `cases/`, against the I-Lang canon as pinned when the runs were made, ilang-spec `127ba56`. Nothing is scored by hand. Since release 2.0.0 (2026-09-26) `vendor/PIN` points at ilang-spec 4.3.0 (`7551914`), the canon rewritten so that the model perceives and code decides; runs made from then on carry different system prompts, are not comparable with the runs on this board, and will be listed apart. The A/B that motivated the change is at research.ilang.ai/datasets/canon-rewrite-ab/. `weighted_total` is the weighted score of the four tracks; `L1` is the conformance gate. **No model has reached L1 yet.**
 
+**Note of 2026-11-27 on the paragraph above.** `weighted_total` weighs three tracks, not four: 0.35 × grammar + 0.35 × exec + 0.30 × judge_jcs (`score.py`, `cases/SCHEMA.md` §8.2). And `vendor/PIN` has pointed at ilang-spec `cad65e2` (release 4.5.1, the sealed v5.0 Pre 2.4.1) since release 2.1.0 of 2026-09-26, as the section "Runs against ilang-spec 4.3.0 and later" below says; `7551914` was the pin of release 2.0.0. Neither changes a number on this board.
+
 ## How these numbers were produced
 
 For time reasons, every model here except three was run through a single aggregator relay, **api.b.ai**, between 18 and 20 September 2026. That relay had problems with claude-fable-5.1, so that model was run through another relay, **orcarouter.ai**; the two free models dated 2026-09-18 were run through OrcaRouter as well. On 25 and 26 September 2026 nine control runs repeated the same corpus for six of those models through other routes: **openrouter.ai** (for the Claude models with the provider pinned to Anthropic), the vendors' own endpoints (**api.deepseek.com**, **maas.qwencloudapi.com**) and Alibaba Cloud's hosting of a DeepSeek model. They are listed in their own section below, "Control runs through other routes".
@@ -17,10 +19,10 @@ Complete runs only: all 320 cases answered, no request errors, no interference f
 | # | model | relay | date | weighted_total | grammar | exec | judge_jcs | judge_schema | L1 | note |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 1 | gemini-3.8-flash | api.b.ai | 2026-09-19 | 0.8417 | 0.9500 | 0.7000 | 0.8806 | 1.0000 | below_L1 |  |
-| 2 | gpt-6-astra | api.b.ai | 2026-09-20 | 0.7733 | 0.9250 | 0.5600 | 0.8451 | 1.0000 | below_L1 |  |
+| 2 | gpt-6-astra | api.b.ai | 2026-09-20 | 0.7733 | 0.9250 | 0.5600 | 0.8451 | 1.0000 | below_L1 | temperature not sent (note of 2026-11-27 below) |
 | 3 | z-ai/glm-5.3-flash-free | orcarouter.ai | 2026-09-18 | 0.7537 | 0.9167 | 0.5400 | 0.8129 | 0.9800 | below_L1 |  |
 | 4 | anthropic/claude-fable-5.1 | orcarouter.ai | 2026-09-20 | 0.7300 | 0.9333 | 0.5000 | 0.7613 | 0.8600 | below_L1 | 29 of 320 replies blocked by a content filter |
-| 5 | kimi-k3 | api.b.ai | 2026-09-20 | 0.7165 | 0.8917 | 0.4600 | 0.8115 | 1.0000 | below_L1 |  |
+| 5 | kimi-k3 | api.b.ai | 2026-09-20 | 0.7165 | 0.8917 | 0.4600 | 0.8115 | 1.0000 | below_L1 | temperature not sent (note of 2026-11-27 below) |
 | 6 | glm-5.3-flash | api.b.ai | 2026-09-19 | 0.6812 | 0.9167 | 0.4600 | 0.6646 | 0.8600 | below_L1 | 31 of 320 replies hit the output limit |
 | 7 | gpt-5.5-instant | api.b.ai | 2026-09-19 | 0.6770 | 0.8417 | 0.3800 | 0.8313 | 1.0000 | below_L1 |  |
 | 8 | gpt-5.6-terra | api.b.ai | 2026-09-19 | 0.6733 | 0.9083 | 0.3400 | 0.7880 | 1.0000 | below_L1 |  |
@@ -31,7 +33,7 @@ Complete runs only: all 320 cases answered, no request errors, no interference f
 | 13 | deepseek/deepseek-v4-flash-free | orcarouter.ai | 2026-09-18 | 0.5825 | 0.8417 | 0.1000 | 0.8429 | 1.0000 | below_L1 |  |
 | 14 | gemini-3-flash | api.b.ai | 2026-09-19 | 0.5802 | 0.8417 | 0.1200 | 0.8119 | 0.9500 | below_L1 |  |
 | 15 | deepseek-v4-pro | api.b.ai | 2026-09-19 | 0.5692 | 0.7083 | 0.2800 | 0.7444 | 0.9000 | below_L1 | 11 of 320 replies hit the output limit |
-| 16 | claude-sonnet-5 | api.b.ai | 2026-09-19 | 0.5652 | 0.8833 | 0.0700 | 0.7717 | 0.9600 | below_L1 | 3 of 320 replies hit the output limit |
+| 16 | claude-sonnet-5 | api.b.ai | 2026-09-19 | 0.5652 | 0.8833 | 0.0700 | 0.7717 | 0.9600 | below_L1 | 3 of 320 replies hit the output limit; temperature not sent (note of 2026-11-27 below) |
 | 17 | gemini-3.5-flash | api.b.ai | 2026-09-19 | 0.5628 | 0.8583 | 0.0200 | 0.8512 | 0.9900 | below_L1 |  |
 | 18 | gpt-5-mini | api.b.ai | 2026-09-19 | 0.5628 | 0.5417 | 0.4500 | 0.7190 | 0.9300 | below_L1 |  |
 | 19 | deepseek-v4.1-flash | api.b.ai | 2026-09-19 | 0.5290 | 0.7000 | 0.1900 | 0.7250 | 0.8700 | below_L1 | 12 of 320 replies hit the output limit |
@@ -48,6 +50,8 @@ Complete runs only: all 320 cases answered, no request errors, no interference f
 | 30 | gpt-5.4-mini | api.b.ai | 2026-09-19 | 0.3617 | 0.5333 | 0.0000 | 0.5836 | 0.8800 | below_L1 |  |
 | 31 | gpt-5.4-nano | api.b.ai | 2026-09-19 | 0.2306 | 0.1833 | 0.0000 | 0.5547 | 0.8200 | below_L1 |  |
 | 32 | gpt-5-nano | api.b.ai | 2026-09-19 | 0.2074 | 0.0833 | 0.0000 | 0.5943 | 0.9100 | below_L1 |  |
+
+**Note of 2026-11-27 on temperature.** The ranking does not hold the sampling fixed. Three ranked runs went out without a temperature, which left the sampling to the endpoint: gpt-6-astra (place 2), kimi-k3 (place 5) and claude-sonnet-5 (place 16), all through api.b.ai. Their raw records hold `request.temperature` null in all 320 requests: `run.py` omits the parameter when the vendors.json entry sets `"temperature": null`, as the entries of these models do. Two runs outside the ranking were sent the same way, gpt-5.4-pro through api.b.ai (listed below as not comparable) and the control run of claude-opus-4.7 through openrouter.ai. In the records of the other 49 scored runs of 18 to 25 September the temperature is 0 in all 320 requests. No score changes; a gap between one of the three runs and its neighbours in the ranking holds the sampling as well as the model. `cases/SCHEMA.md` §2.4 now describes the omitted temperature.
 
 ## Runs that are not comparable
 
@@ -88,6 +92,8 @@ These ran against the same corpus, but something outside the model changed what 
 
 The same corpus, the same scorer, the same canon pin, six of the models above through routes other than api.b.ai, run on 25 and 26 September 2026. They are complete (all 320 cases answered, no request error) and comparable in the sense of the ranking above, but they are kept in their own table because a rank that mixed routes would hide what these runs are for: the same model name through two routes can land far apart, and the per-case agreement between routes bounds how much of that is the model itself.
 
+**Note of 2026-11-27 on completeness.** The sentence above holds for seven of the nine runs. The two qwen3.8-flash runs have 4 and 8 of 320 cases unanswered after four attempts, as their rows say (`error_count` 4 and 8 in their `score.json`), so by the rule of the ranking they are not complete, and in their scores, as in those of the runs listed as not comparable, each unanswered case is scored as an error record (`cases/SCHEMA.md` §8.1, §8.7), not left out. Their comparison with the api.b.ai run of qwen3.8-flash (0.6521, 19 of 320 missing) is a comparison of incomplete runs.
+
 | model | route | date | weighted_total | grammar | exec | judge_jcs | judge_schema | L1 | the api.b.ai run of the same name | note |
 |---|---|---|---|---|---|---|---|---|---|---|
 | claude-sonnet-4.6 | openrouter.ai, provider pinned to Anthropic | 2026-09-25 | 0.4793 | 0.7333 | 0.0100 | 0.7305 | 0.9400 | below_L1 | 0.0284, re-cased (interference 5) |  |
@@ -124,6 +130,8 @@ For the three Claude models the agreement is low because the api.b.ai side is no
 
 Records of these runs carry the served provider where the route reports one; `report/<run>/refusal.json` holds their prompt-size ratios and upper-case counts, and `controls/` in this repository holds the driver and the arm-comparison script that produced the agreement figures.
 
+**Note of 2026-11-27 on `report/REFUSALS.md`.** That table was last generated on 2026-09-25, before these nine runs and the first run against 4.3.0 below were published, and its 45 rows were the scored runs of 18 to 20 September. On 2026-11-27 it was generated again with `python3 refusal.py --table` from the committed `refusal.json` files: it now has a row for each of the 55 runs with a report. The ten rows of 25 and 26 September are added; the 45 earlier rows and every other line are unchanged byte for byte.
+
 ## Runs against ilang-spec 4.3.0 and later (release 2.0.0 and later)
 
 From release 2.0.0 the vendored canon is ilang-spec 4.3.0, whose wording leaves decisions to code; from release 2.1.0 (2026-09-26) it is ilang-spec `cad65e2`, the sealed v5.0 Pre 2.4.1 (release 4.5.1), whose f_v5, constants and JUDGE schema are identical to 4.3.0 and whose Part I and Part IV text is the 2.4.1 wording (every symbol defined, bound or registered). Runs made against it carry different system prompts from everything above and are listed here, apart from the ranking. The first is the same model, route and parameters as the deepseek runs on the board (orcarouter.ai, deepseek/deepseek-v4-flash-free, temperature 0, seed 42), so the three canons can be read side by side:
@@ -136,6 +144,8 @@ From release 2.0.0 the vendored canon is ilang-spec 4.3.0, whose wording leaves 
 | **ilang-spec 4.3.0** (the rewrite plus the rule that the runtime's budget line is read, never re-emitted) | orcarouter-deepseek-free-20260926-034241 | 2026-09-26 | **0.7808** | 0.8417 | **0.6800** | 0.8275 | 0.9800 | below_L1 | **2** |
 
 Per case, the 4.3.0 run against arm B: 49 execution cases pass only under 4.3.0 and 6 only under B (McNemar exact p < 0.0001); R9 fails 66 cases only under B and none only under 4.3.0; grammar 101 against 103 passes (p = 0.77) and judgment 84 against 84 mode hits, both within the run-to-run noise of this model (the two 127ba56 runs above differ by 5 exec and 7 grammar flips). Under 4.3.0, 98 of 100 execution replies carry `authority:proposal`; the 32 remaining failures are 24 wrong end states, 4 R8, 2 R9 and 1 R7. Refusals and filters: zero on every one of these runs. The A/B rows are published with their per-case tables at research.ilang.ai/datasets/canon-rewrite-ab/; the 4.3.0 run's score and manifest are in `report/`.
+
+**Note of 2026-11-27 on the paragraph above.** The four counts of the 32 failures add up to 32 with 25 wrong end states, not 24: in `report/orcarouter-deepseek-free-20260926-034241/score.json`, 25 failing execution cases violate no rule and fail the end-state check, one of them (exec-0005) the reason check as well, and the other seven fail R8 (4), R9 (2) and R7 (1).
 
 The wording of the specification in the model's context is, for this model, the difference between passing 10 and 68 of 100 execution cases. That is the single largest effect measured on this board, and it came from text, not from a model change.
 

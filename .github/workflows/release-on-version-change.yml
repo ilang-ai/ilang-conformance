@@ -5,6 +5,10 @@
 #
 # Pre-release lines (tags such as v5.0-pre.x) stay manual: CITATION.cff carries
 # the stable version, and this workflow only ever tags that one.
+#
+# The release job needs the checks job, which runs checks.yml (the same checks
+# that run on every push), so a commit that breaks the vendor pin, the corpus, a
+# selftest or a unit test is never tagged, released or archived.
 
 name: Release on version change
 
@@ -18,7 +22,11 @@ permissions:
   contents: write
 
 jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+
   release:
+    needs: checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

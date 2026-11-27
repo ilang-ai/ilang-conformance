@@ -1,0 +1,44 @@
+# Every check of the instrument, run on every push and, through workflow_call, by
+# release-on-version-change.yml before its release job tags a version: the vendor
+# pin and both upstream selftests (bootstrap.sh), the corpus validation, the judge
+# corpus against its generator, the checker and runner selftests and the unit tests.
+# No model is run and no key is read; the unit tests block the network themselves.
+# The archived run records are not in the repository, so paper/reproduce_all.py
+# does not run here.
+
+name: Checks
+
+on:
+  push:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Vendor pin and upstream selftests
+        run: PYTHON=python bash bootstrap.sh
+
+      - name: Corpus validation
+        run: python -X utf8 validate_cases.py
+
+      - name: Judge corpus against its generator
+        run: python -X utf8 gen_judge_cases.py --check
+
+      - name: Checker selftest
+        run: python -X utf8 checker_exec.py --selftest
+
+      - name: Runner selftest
+        run: python -X utf8 run.py --selftest
+
+      - name: Unit tests
+        run: python -X utf8 -m unittest discover -s tests

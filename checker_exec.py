@@ -44,6 +44,10 @@
 #      line is never read as preamble metadata. Not an exec rule: this file does
 #      not use it and lists the id only because the selftest compares the ids
 #      (recorded in SCHEMA §10 on 2026-11-26; score.py has done it since e8603f2).
+#  BD8 Temperature omitted. Book §4.3 "temperature 0". run.py sends no
+#      temperature when the vendors.json entry sets it null (SCHEMA §2.4). Not an
+#      exec rule: this file lists the id only because the selftest compares the
+#      ids (recorded in SCHEMA §10 on 2026-11-27; run.py has done it since e8603f2).
 #
 # Book-spec tensions where SCHEMA follows the book (SCHEMA §10):
 #  BT1 expect.state `running` (book §4.1 exec-0042), although v4:217 does not
@@ -154,7 +158,7 @@ FULLWIDTH_DIGITS = str.maketrans("０１２３４５６７８９", "0123456789")
 # SCHEMA §3.8: declaration names whose bodies the checker parses (case-insensitive)
 EXEC_KINDS = ("STATUS", "BUDGET")
 # SCHEMA §10 ids (see the header above)
-BOOK_DEVIATIONS = ["BD1", "BD2", "BD3", "BD4", "BD5", "BD6", "BD7"]
+BOOK_DEVIATIONS = ["BD1", "BD2", "BD3", "BD4", "BD5", "BD6", "BD7", "BD8"]
 BOOK_SPEC_TENSIONS = ["BT1", "BT2", "BT3", "BT4"]
 # SCHEMA §1.4 budget.kind values, the key qualifiers that name each kind and the unit
 # words a value of that kind may carry (SCHEMA §3.10; v4:143-145)

@@ -30,6 +30,13 @@ REPORT/<run>/MANIFEST.sha256 (byte copy); REPORT/SCOREBOARD.generated.md (regene
 REPORT/SCOREBOARD.md is the board written by hand and is never touched (until release 2.2.0
 the generated table was written over it). Nothing is written to REPORT when scoring is refused.
 
+spec_pin in score.json is the commit of this checkout's vendor/PIN, the canon of the validators
+that scored the run; it is not read from the records. Each raw record carries request.system_sha256,
+the digest of the system message it was sent (SCHEMA §2.1, §8.6). When the records of a track were
+sent another system message than the one this checkout builds (run.system_message), as when archived
+records are scored after a re-pin, score.py writes one warning line per track to stderr and scores
+the run all the same; score.json is unchanged (SCHEMA §8.3, added in release 2.2.2).
+
 Exit status:
   0  scored
   1  refused: a SCHEMA §8.9 precondition failed, the run or corpus is malformed,
@@ -489,7 +496,8 @@ def select_latest(runs_dir, vendor):
 
 
 def parse_record(rel, data):
-    """The raw record fields score.py reads (SCHEMA §8.6): status, text, request.vendor, request.model."""
+    """The raw record fields score.py reads (SCHEMA §8.6): status, text, request.vendor, request.model, and
+    request.system_sha256, which only the stderr warning of canon_warnings() reads (None when absent)."""
     try:
         rec = json.loads(decode_utf8(data, "raw record " + rel))
     except ValueError:
@@ -504,8 +512,35 @@ def parse_record(rel, data):
     req = rec.get("request")
     if not isinstance(req, dict) or not isinstance(req.get("vendor"), str) or not isinstance(req.get("model"), str):
         raise Refusal("raw record %s: request.vendor and request.model must be strings (SCHEMA §8.6)" % rel)
+    sys_sha = req.get("system_sha256")
     return {"status": status, "text": rec["text"] if status == "ok" else None,
-            "vendor": req["vendor"], "model": req["model"]}
+            "vendor": req["vendor"], "model": req["model"],
+            "system_sha256": sys_sha if isinstance(sys_sha, str) else None}
+
+
+def canon_warnings(run_name, records, present):
+    """SCHEMA §8.3: one stderr line per present track whose records were sent a system message other than the one
+    this checkout builds (run.system_message, SCHEMA §2.1). spec_pin in score.json names this checkout's pin, so a
+    run made against another canon is labelled with a pin it was not made with; this says so and refuses nothing.
+    Nothing here enters score.json."""
+    try:
+        runner = vendor_module("run")
+        want = {t: sha256_hex(runner.system_message(t).encode("utf-8")) for t in present}
+    except Exception as e:                          # noqa: BLE001 - a warning must never stop the scorer
+        return ["score.py: warning: %s: cannot build this checkout's system messages to compare with "
+                "request.system_sha256 (%s: %s)" % (run_name, type(e).__name__, e)]
+    out = []
+    for t in present:
+        got = [records[rel]["system_sha256"] for rel in sorted(records) if rel.startswith(t + "/")]
+        other = [h for h in got if h != want[t]]
+        if other:
+            seen = sorted({h[:16] if h else "none" for h in other})
+            out.append("score.py: warning: %s: %s: %d of %d records were sent a system message (sha256 %s) other "
+                       "than the one this checkout builds (sha256 %s); spec_pin in score.json names this checkout's "
+                       "vendor/PIN, not the canon the run was made with (SCHEMA §8.3)"
+                       % (run_name, t, len(other), len(got), ", ".join(seen[:3]) + (", ..." if len(seen) > 3 else ""),
+                          want[t][:16]))
+    return out
 
 
 # ---------------------------------------------------------------- tracks (SCHEMA §8.1)
@@ -742,6 +777,8 @@ def score_run(run_dir, cases_dir, report_dir, vendor=None):
                       % (vendors, models))
     if vendors[0] != m.group(1):
         raise Refusal("raw records name vendor %s but the run directory is %s" % (vendors[0], name))
+    for line in canon_warnings(name, records, present):
+        print(line, file=sys.stderr)
 
     tracks = {}
     for t in present:
