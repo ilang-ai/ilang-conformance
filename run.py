@@ -1256,6 +1256,8 @@ def cmd_selftest(out):
            and load_key("STUB_KEY", Path(td) / "missing.env") is None, "key only from the env file")
         bad = Path(td) / "bad.env"
         bad.write_bytes(b"STUB_KEY=sk-part1\tpart2\nCTRL=sk-a\x7fb\n")
+        if os.name == "posix":
+            os.chmod(bad, 0o600)                  # else the mode check refuses the file first
         for name in ("STUB_KEY", "CTRL"):
             try:
                 load_key(name, bad)
