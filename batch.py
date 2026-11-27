@@ -469,7 +469,7 @@ def cmd_run(a):
             break
         time.sleep(a.poll)
     scored = sum(1 for n in names if state[n]["state"] == "scored")
-    say("run: %d scored, %d failed; details in batch/full.tsv and report/SCOREBOARD.md" % (scored, len(names) - scored))
+    say("run: %d scored, %d failed; details in batch/full.tsv and report/SCOREBOARD.generated.md" % (scored, len(names) - scored))
     return 0
 
 
@@ -497,7 +497,7 @@ def cmd_pack(a):
     used = [entries[n] for n in names if n in entries]
     write_atomic(BATCH / "vendors-used.json", json.dumps(used, ensure_ascii=False, indent=1) + "\n")
     files = [BATCH / f for f in ("models-all.txt", "models.txt", "vendors.txt", "screen.tsv", "full.tsv",
-                                 "vendors-used.json")] + [REPO / "report" / "SCOREBOARD.md"]
+                                 "vendors-used.json")] + [REPO / "report" / "SCOREBOARD.generated.md"]
     for n in names:
         f = full.get(n)
         if not f or not f.get("run_dir"):

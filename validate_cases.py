@@ -106,7 +106,7 @@ JUDGE_V2M_PROMPT = (
 # SCHEMA §3.5 text block
 LINT_HEADER = "::ILANG::v4.0"
 
-# Copy of score.LINT_PREAMBLE_BREAK (proposed SCHEMA §3.5 amendment): written directly after the
+# Copy of score.LINT_PREAMBLE_BREAK (SCHEMA §3.5 text block): written directly after the
 # document header of every lint file so no payload line sits in the §1.7 preamble position.
 LINT_PREAMBLE_BREAK = "T[0]"
 

@@ -74,6 +74,8 @@ These ran against the same corpus, but something outside the model changed what 
 
 **1. A persona this corpus never sent (api.b.ai).** claude-haiku-4.5 refused 262 of its 320 replies; 162 of them name an agent product the corpus never mentions: *"I'm Claude, made by Anthropic. I'm not going to pretend to be 'Droid' or a Factory product ... act as 'Claude Code' CLI"*. The three system prompts this harness sends are built in `run.py`, one per track; those words appear nowhere in this repository, and the same three prompt hashes were recorded for all 43 models. The persona came from the relay. Models that did not object may have received it too.
 
+**Note of 2026-11-26 on the two refusal counts of this run.** This board gives two counts for claude-haiku-4.5 through api.b.ai, the run `relay-claude-haiku-4.5-20260918-225457`: 262 of 320 here and in the table above, and 238 in the control-run section below, in `report/REFUSALS.md` and in the README. The 238 is the count of `refusal.py` (refusal track 1.0, added on 2026-09-24, commit `4a92b01`): a reply is refused when it carries no artifact of its track (a `::JUDGE` block for judge; an iLang declaration or operation for grammar and exec, wherever it stands in the reply) and matches one of the script's decline markers. By the same rule 56 replies of this run are filed as answered and 26 as other, and the run's `refusal.json` holds the three counts. The 262 was written on the board of 2026-09-21 (commit `3d519f0`), three days before `refusal.py` was added; no script, rule or per-reply count in this repository produces it, so its origin cannot be established from the committed files. It stays as published, and the rule of `refusal.py` is unchanged.
+
 **2. Credit exhausted mid-run (api.b.ai).** Six runs stopped getting answers when the relay balance ran out: claude-opus-5 (269 of 320 missing), gpt-5.4-pro (198), kimi-k2.6 (197, never finished, no score), claude-opus-4.8 (194), claude-opus-4.6 (97) and minimax-m3 (75). Their scores are computed over the answers that exist, so they are lower bounds, not measurements.
 
 **3. The answer did not fit in the output limit.** With `max_tokens` 8192, some replies ended at the limit with an empty message, the budget spent on reasoning tokens: glm-5.2 33 of 320, glm-5.3-flash 31, deepseek-v4.1-flash 12, deepseek-v4-pro 11, claude-sonnet-5 3, mimo-v2.5-pro 1. Those cases score as failures. This is a setting of this harness, not a property of the model.
@@ -100,22 +102,24 @@ The same corpus, the same scorer, the same canon pin, six of the models above th
 
 Per-case agreement between the api.b.ai run and each control run of the same name, from `controls/ARMS-2026-09-26.md`:
 
-| model | control route | grammar, same pass/fail | exec, same pass/fail | judge, same mode |
-|---|---|---|---|---|
-| claude-sonnet-4.6 | openrouter.ai → Anthropic | 38 of 120 | 97 of 100 | 6 of 100 |
-| claude-opus-4.7 | openrouter.ai → Anthropic | 27 of 120 | 98 of 100 | 1 of 100 |
-| claude-haiku-4.5 | openrouter.ai → Anthropic | 35 of 120 | 100 of 100 | 8 of 100 |
-| deepseek-v4.1-flash | api.deepseek.com | 81 of 120 | 66 of 100 | 77 of 100 |
-| deepseek-v4.1-flash | openrouter.ai | 82 of 120 | 65 of 100 | 77 of 100 |
-| deepseek-v4.1-flash | Alibaba Cloud | 76 of 120 | 67 of 100 | 81 of 100 |
-| qwen3.8-flash | maas.qwencloudapi.com | 101 of 120 | 76 of 100 | 92 of 100 |
-| qwen3.8-flash | openrouter.ai | 106 of 120 | 71 of 100 | 86 of 100 |
-| glm-5.3-flash | openrouter.ai | 83 of 120 | 67 of 100 | 82 of 100 |
+| model | control route | grammar, same pass/fail | exec, same pass/fail | judge, same mode | judge, same mode, corrected 2026-11-26 |
+|---|---|---|---|---|---|
+| claude-sonnet-4.6 | openrouter.ai → Anthropic | 38 of 120 | 97 of 100 | 6 of 100 | 0 of 0 |
+| claude-opus-4.7 | openrouter.ai → Anthropic | 27 of 120 | 98 of 100 | 1 of 100 | 0 of 0 |
+| claude-haiku-4.5 | openrouter.ai → Anthropic | 35 of 120 | 100 of 100 | 8 of 100 | 0 of 0 |
+| deepseek-v4.1-flash | api.deepseek.com | 81 of 120 | 66 of 100 | 77 of 100 | 75 of 77 |
+| deepseek-v4.1-flash | openrouter.ai | 82 of 120 | 65 of 100 | 77 of 100 | 73 of 77 |
+| deepseek-v4.1-flash | Alibaba Cloud | 76 of 120 | 67 of 100 | 81 of 100 | 77 of 79 |
+| qwen3.8-flash | maas.qwencloudapi.com | 101 of 120 | 76 of 100 | 92 of 100 | 92 of 100 |
+| qwen3.8-flash | openrouter.ai | 106 of 120 | 71 of 100 | 86 of 100 | 86 of 94 |
+| glm-5.3-flash | openrouter.ai | 83 of 120 | 67 of 100 | 82 of 100 | 76 of 83 |
+
+**Correction of 2026-11-26 (judge, same mode).** The column "judge, same mode" stands as published on 2026-09-26. Its rule, in `controls/compare_arms.py` until release 2.2.0, counted a case when the two runs' `pred_mode` in `score.json` were equal; `score.py` writes `pred_mode` `none` for a reply without a schema-valid block, so a case that neither run parsed counted as the same mode. The corrected column counts a case only when both runs gave a schema-valid block, and reads "x of y": y cases with a valid block in both runs, x of them with the same mode. The counts x of the two columns differ by the cases that neither run parsed: 6, 1 and 8 for the three Claude models, where no case was parsed by both runs; 2, 4 and 4 for deepseek-v4.1-flash; none for qwen3.8-flash; 6 for glm-5.3-flash. The corrected figures were recomputed on 2026-11-26 from the committed `report/<run>/score.json` files of the same runs with the corrected script; no model was run again and no score changed. `controls/ARMS-2026-09-26.md` and `controls/arms-2026-09-26.json` are kept as published and hold the old figures.
 
 For the three Claude models the agreement is low because the api.b.ai side is not the model's answer; the exec column is high only because both sides fail nearly every case. Read across a model's rows and the routes tell three different stories:
 
 * **The relay changed the reply.** claude-sonnet-4.6 and claude-opus-4.7 through api.b.ai scored 0.0284 and 0.0278 with their keys re-cased (interference 5); through openrouter.ai pinned to Anthropic the same names score 0.4793 and 0.5090, with every reply in lower case and the prompt tokens the request actually holds. claude-haiku-4.5 refused 238 of 320 requests through api.b.ai under a persona the relay added; through openrouter.ai it refused none. None of the three api.b.ai runs measured the model.
-* **The relay did not touch the reply, and the difference is the model's own.** deepseek-v4.1-flash through api.b.ai, api.deepseek.com, openrouter.ai and Alibaba Cloud reports the same prompt tokens to the token in all four routes, scores between 0.5290 and 0.5731, and agrees with itself case by case on 76 to 82 of 120 grammar cases, 65 to 67 of 100 execution cases and 77 to 81 of 100 judgment modes at temperature 0. That spread is the noise floor of one run: differences of a few points between any two runs on this board are not separable from it.
+* **The relay did not touch the reply, and the difference is the model's own.** deepseek-v4.1-flash through api.b.ai, api.deepseek.com, openrouter.ai and Alibaba Cloud reports the same prompt tokens to the token in all four routes, scores between 0.5290 and 0.5731, and agrees with itself case by case on 76 to 82 of 120 grammar cases, 65 to 67 of 100 execution cases and 77 to 81 of 100 judgment modes at temperature 0 (corrected 2026-11-26: 73 to 77 of the 77 to 79 cases that both runs parsed; see the correction under the table above). That spread is the noise floor of one run: differences of a few points between any two runs on this board are not separable from it.
 * **The same name is not the same host.** openrouter.ai served this deepseek-v4.1-flash run from 16 different hosts (Together 106 requests, Novita 88, DeepInfra 41, Alibaba 40, StreamLake 23 and eleven others) and the glm-5.3-flash run from 21, with Z.AI itself answering 2 of 320; that glm-5.3-flash run scores 0.5558 against 0.6812 through api.b.ai, which served it from one place. A model name on an aggregator is a family of deployments unless the provider is pinned. The Claude runs were pinned, and all 960 of their requests went to Anthropic.
 
 Records of these runs carry the served provider where the route reports one; `report/<run>/refusal.json` holds their prompt-size ratios and upper-case counts, and `controls/` in this repository holds the driver and the arm-comparison script that produced the agreement figures.

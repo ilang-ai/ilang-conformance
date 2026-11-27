@@ -9,6 +9,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import unittest
 from pathlib import Path
@@ -17,6 +18,7 @@ import support
 import batch
 
 REPO = support.REPO
+HAND_BOARD = "# ilang-conformance scoreboard\n\nWritten by hand.\n"
 
 
 class HelperTests(unittest.TestCase):
@@ -92,6 +94,8 @@ class MockBatchTests(unittest.TestCase):
         cls.repo = root / "repo"
         shutil.copytree(REPO, cls.repo, ignore=shutil.ignore_patterns(
             ".git", "runs", "report", "batch", "__pycache__", "*.pyc"))
+        (cls.repo / "report").mkdir()
+        (cls.repo / "report" / "SCOREBOARD.md").write_bytes(HAND_BOARD.encode("utf-8"))
         cls.home = root / "home"
         cls.home.mkdir()
         cls.env = dict(support.child_env(), HOME=str(cls.home), USERPROFILE=str(cls.home), PYTHON=sys.executable)
@@ -127,9 +131,10 @@ class MockBatchTests(unittest.TestCase):
         self.assertEqual({k: v["state"] for k, v in full.items()}, {"t-alpha": "scored", "t-beta": "scored", "t-gamma": "scored"})
         for row in full.values():
             self.assertTrue((self.repo / "report" / Path(row["run_dir"]).name / "score.json").is_file())
-        board = (self.repo / "report" / "SCOREBOARD.md").read_text(encoding="utf-8")
+        board = (self.repo / "report" / "SCOREBOARD.generated.md").read_text(encoding="utf-8")
         for name in ("t-alpha", "t-beta", "t-gamma"):
             self.assertIn("| %s |" % name, board)
+        self.assertEqual((self.repo / "report" / "SCOREBOARD.md").read_bytes(), HAND_BOARD.encode("utf-8"))
         self.assertIn("scored", self.batch("status").stdout)
 
     def test_b_a_run_stopped_without_done_is_resumed(self):
@@ -179,6 +184,10 @@ class MockBatchTests(unittest.TestCase):
         self.assertIn("key scan clean", cp.stdout)
         packs = sorted((self.repo / "batch").glob("pack-*.tar.gz"))
         self.assertEqual(len(packs), 1)
+        with tarfile.open(packs[0]) as tar:
+            names = tar.getnames()
+        self.assertIn("report/SCOREBOARD.generated.md", names)
+        self.assertNotIn("report/SCOREBOARD.md", names)
 
 
 if __name__ == "__main__":

@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 """Put the control runs on the public board (2026-09-25, his call: 「加进记分板」).
 
-score.py regenerates REPORT/SCOREBOARD.md whenever it scores into REPORT, and the public board is written by hand,
-so the control runs are scored into a side directory and this script copies what belongs in the repository:
+Until release 2.2.0 score.py regenerated REPORT/SCOREBOARD.md whenever it scored into REPORT (it now writes
+REPORT/SCOREBOARD.generated.md), and the public board is written by hand, so the control runs were scored into a
+side directory and this script copies what belongs in the repository:
 
   python controls/publish_controls.py --from DIR [--research DIR] [--apply]
 

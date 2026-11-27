@@ -43,6 +43,7 @@ class SchemaConstantTests(unittest.TestCase):
 
     def test_text_blocks(self):
         pairs = [(score, "LINT_HEADER"), (validate_cases, "LINT_HEADER"),
+                 (score, "LINT_PREAMBLE_BREAK"), (validate_cases, "LINT_PREAMBLE_BREAK"),
                  (validate_cases, "JUDGE_V2M_PROMPT"), (gen_judge_cases, "JUDGE_V2M_PROMPT")]
         pairs += [(runner, n) for n in ("SYSTEM_SEPARATOR", "CONTRACT_GRAMMAR", "CONTRACT_EXEC", "CONTRACT_JUDGE",
                                         "USER_TEMPLATE", "TAIL_GRAMMAR", "TAIL_EXEC", "TAIL_JUDGE")]

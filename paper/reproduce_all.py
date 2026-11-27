@@ -16,7 +16,10 @@ Three outcomes are counted per file:
   different          anything else
 
 Release 1.2.0 vendors the specification the runs of September 2026 were made with, and gives "identical" for all
-of them. Later releases vendor a later specification and give "identical but for the specification".
+of them. Later releases vendor a later specification and give "identical but for the specification". From release
+2.2.1 controls/compare_arms.py counts judge.same_mode over the cases both arms parsed and adds judge.both_valid
+(correction of 2026-11-26); the published arms file keeps the figures of 2026-09-26, so the arm comparison sets
+these two keys aside and says so.
 """
 import argparse
 import json
@@ -55,6 +58,16 @@ def strip_arms(obj):
         return {k: strip_arms(v) for k, v in obj.items() if "ratio" not in k and k != "prompt_size"}
     if isinstance(obj, list):
         return [strip_arms(v) for v in obj]
+    return obj
+
+
+def strip_same_mode(obj):
+    """Release 2.2.1 counts judge.same_mode over the cases both arms parsed and adds judge.both_valid (correction
+    of 2026-11-26 on the board); the published arms file keeps the figures of 2026-09-26. Set both keys aside."""
+    if isinstance(obj, dict):
+        return {k: strip_same_mode(v) for k, v in obj.items() if k not in ("same_mode", "both_valid")}
+    if isinstance(obj, list):
+        return [strip_same_mode(v) for v in obj]
     return obj
 
 
@@ -121,6 +134,8 @@ def main():
             x, y = json.loads(read(made).decode("utf-8")), json.loads(read(published).decode("utf-8"))
             if strip_arms(x) == strip_arms(y):
                 print("arm comparison: identical but for the specification")
+            elif strip_same_mode(strip_arms(x)) == strip_same_mode(strip_arms(y)):
+                print("arm comparison: identical but for the specification and judge.same_mode, corrected 2026-11-26")
             else:
                 print("arm comparison: different")
                 problems.append(("arm comparison", "arms.json differs from the published file"))

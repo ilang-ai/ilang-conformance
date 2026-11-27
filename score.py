@@ -26,8 +26,9 @@ Options:
 
 Outputs (SCHEMA §6.4, §8.10): RUN/judge/eval.jsonl when the judge track is
 present; REPORT/<run>/score.json (canonical bytes, SCHEMA §8.4);
-REPORT/<run>/MANIFEST.sha256 (byte copy); REPORT/SCOREBOARD.md (regenerated).
-Nothing is written to REPORT when scoring is refused.
+REPORT/<run>/MANIFEST.sha256 (byte copy); REPORT/SCOREBOARD.generated.md (regenerated).
+REPORT/SCOREBOARD.md is the board written by hand and is never touched (until release 2.2.0
+the generated table was written over it). Nothing is written to REPORT when scoring is refused.
 
 Exit status:
   0  scored
@@ -90,8 +91,8 @@ PIN_COMMIT = re.compile(r"commit ([0-9a-f]{40})")
 # SCHEMA §3.5 text block LINT_HEADER
 LINT_HEADER = "::ILANG::v4.0"
 
-# Harness line written directly after the document header of every lint file (proposed SCHEMA §3.5
-# amendment; book deviation of 前置一行 ::ILANG::v4.0). Without it the payload's first line sits in
+# Harness line written directly after the document header of every lint file (SCHEMA §3.5 text
+# block; BD7, book deviation of 前置一行 ::ILANG::v4.0). Without it the payload's first line sits in
 # the validator's §1.7 preamble position (grammar.py:228-230, 241), where a `[VERB:@X|...]` line
 # without `]=>` is skipped as a metadata tag (grammar.py:258-262): its modifiers and target go
 # unchecked and following `=>` lines become orphan E300. `T[0]` is a temporal note
@@ -640,7 +641,7 @@ def rate(x):
 
 
 def build_scoreboard(report_dir, run_name, score_obj, manifest_bytes):
-    """REPORT/SCOREBOARD.md text with the current run as if already written."""
+    """REPORT/SCOREBOARD.generated.md text with the current run as if already written."""
     report_dir = Path(report_dir)
     candidates = {run_name}
     if report_dir.is_dir():
@@ -761,7 +762,7 @@ def score_run(run_dir, cases_dir, report_dir, vendor=None):
     out_dir.mkdir(parents=True, exist_ok=True)
     atomic_write(out_dir / "score.json", data)
     atomic_write(out_dir / "MANIFEST.sha256", manifest_bytes)
-    atomic_write(Path(report_dir) / "SCOREBOARD.md", board.encode("utf-8"))
+    atomic_write(Path(report_dir) / "SCOREBOARD.generated.md", board.encode("utf-8"))
     return name, obj, data
 
 

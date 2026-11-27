@@ -16,8 +16,14 @@ every --runs-a directory and in the repository's runs/; score.json under --repor
 Output: <out>/arms.json (canonical) and <out>/ARMS.md with, per model and arm: served model id, records, status ok,
 median prompt tokens per track and the ratio against the request we sent, upper-cased replies, refused and filtered
 (refusal.py's rules), pass rates per track, and, between the api.b.ai arm and each control arm, the per-case
-agreement: same pass/fail on grammar and exec, same mode on judge, and the share of judge vectors identical to the
-other arm's.
+agreement: same pass/fail on grammar and exec, same mode on judge over the cases where both arms gave a schema-valid
+block, and the share of judge vectors identical to the other arm's.
+
+Until 2026-11-26 "same mode" also counted the cases where neither arm gave a valid block: score.py pads such a reply
+with pred_mode "none", and "none" equals "none". ARMS-2026-09-26.md and arms-2026-09-26.json were written under that
+rule and are kept as published; report/SCOREBOARD.md gives both figures. An arms.json written by this script
+therefore differs from arms-2026-09-26.json in judge.same_mode and in the added judge.both_valid, and
+paper/reproduce_all.py sets these two keys aside.
 """
 import argparse
 import glob
@@ -106,7 +112,8 @@ def agreement(recs_a, score_a, recs_b, score_b):
         out[t] = {"n": len(ids), "same_pass_fail": same, "a_pass": sum(1 for i in ids if ca[i].get("pass")),
                   "b_pass": sum(1 for i in ids if cb[i].get("pass"))}
     ids = [i for i in ca if i.startswith("judge") and i in cb]
-    same_mode = sum(1 for i in ids if ca[i].get("pred_mode") and ca[i].get("pred_mode") == cb[i].get("pred_mode"))
+    valid = [i for i in ids if ca[i].get("schema_valid") and cb[i].get("schema_valid")]
+    same_mode = sum(1 for i in valid if ca[i].get("pred_mode") == cb[i].get("pred_mode"))
     ta = {r["id"]: r.get("text") for r in recs_a.get("judge", [])}
     tb = {r["id"]: r.get("text") for r in recs_b.get("judge", [])}
     same_vec = both = 0
@@ -116,7 +123,8 @@ def agreement(recs_a, score_a, recs_b, score_b):
         if va and vb:
             both += 1
             same_vec += va == vb
-    out["judge"] = {"n": len(ids), "same_mode": same_mode, "both_parsed": both, "same_vector": same_vec}
+    out["judge"] = {"n": len(ids), "same_mode": same_mode, "both_valid": len(valid), "both_parsed": both,
+                    "same_vector": same_vec}
     return out
 
 
@@ -176,10 +184,10 @@ def main(argv=None):
         if agree:
             lines += ["", "| control arm | grammar same pass/fail | exec same pass/fail | judge same mode | judge same vector |", "|---|---|---|---|---|"]
             for label, g in agree.items():
-                lines.append("| %s | %d/%d (a %d, b %d pass) | %d/%d (a %d, b %d pass) | %d/%d | %d/%d parsed |" % (
+                lines.append("| %s | %d/%d (a %d, b %d pass) | %d/%d (a %d, b %d pass) | %d/%d parsed | %d/%d parsed |" % (
                     label, g["grammar"]["same_pass_fail"], g["grammar"]["n"], g["grammar"]["a_pass"], g["grammar"]["b_pass"],
                     g["exec"]["same_pass_fail"], g["exec"]["n"], g["exec"]["a_pass"], g["exec"]["b_pass"],
-                    g["judge"]["same_mode"], g["judge"]["n"], g["judge"]["same_vector"], g["judge"]["both_parsed"]))
+                    g["judge"]["same_mode"], g["judge"]["both_valid"], g["judge"]["same_vector"], g["judge"]["both_parsed"]))
         lines.append("")
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)

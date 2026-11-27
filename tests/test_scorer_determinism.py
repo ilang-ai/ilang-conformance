@@ -90,7 +90,8 @@ class ScorerDeterminismTests(unittest.TestCase):
         _, _, _, report = self.scores["mock-20260101-000001/1"]
         self.assertEqual((report / self.run_a.name / "MANIFEST.sha256").read_bytes(),
                          (self.run_a / "MANIFEST.sha256").read_bytes())
-        board = (report / "SCOREBOARD.md").read_bytes().decode("utf-8")
+        self.assertFalse((report / "SCOREBOARD.md").exists())
+        board = (report / "SCOREBOARD.generated.md").read_bytes().decode("utf-8")
         lines = board.split("\n")
         self.assertEqual(lines[0], "# ilang-conformance scoreboard")
         self.assertEqual(lines[1], "")
@@ -100,6 +101,17 @@ class ScorerDeterminismTests(unittest.TestCase):
         self.assertIn("| 2026-01-01 |", row[0])
         self.assertIn("| L1 |", row[0])
         self.assertIn("| %s |" % self.run_a.name, row[0])
+
+    def test_a_board_written_by_hand_survives_scoring(self):
+        """report/SCOREBOARD.md is the published board; score.py writes its table to SCOREBOARD.generated.md."""
+        report = self.td / "report-with-a-board"
+        report.mkdir()
+        hand = "# ilang-conformance scoreboard\n\nWritten by hand, with a correction notice.\n".encode("utf-8")
+        (report / "SCOREBOARD.md").write_bytes(hand)
+        code, out, err = support.score_cli([self.run_a, "--vendor", "mock", "--cases", CASES, "--report", report])
+        self.assertEqual(code, 0, err)
+        self.assertEqual((report / "SCOREBOARD.md").read_bytes(), hand)
+        self.assertIn("| mock |", (report / "SCOREBOARD.generated.md").read_bytes().decode("utf-8"))
 
 
 class RefusalTests(unittest.TestCase):

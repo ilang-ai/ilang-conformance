@@ -33,7 +33,8 @@ specification therefore recomputes the scores and the counts, and gives other ra
 | checkout | `reproduce_all.py` reports |
 |---|---|
 | release 1.2.0 (`6afa99d`), which vendors the specification the runs of September 2026 were made with | identical, byte for byte, for the 54 runs it publishes and for the arm comparison |
-| release 2.1.0 and later | identical but for the specification, for all 55 runs and for the arm comparison: `spec_pin` in `score.json` and `prompt_size` in `refusal.json` are set aside, everything else is equal |
+| release 2.1.0 to 2.2.0 | identical but for the specification, for all 55 runs and for the arm comparison: `spec_pin` in `score.json` and `prompt_size` in `refusal.json` are set aside, everything else is equal |
+| release 2.2.1 and later | identical but for the specification, for all 55 runs; for the arm comparison also but for `judge.same_mode` and the added `judge.both_valid`, which release 2.2.1 counts over the cases both arms parsed, while `controls/arms-2026-09-26.json` keeps the figures of 2026-09-26 |
 
 To run the scripts on release 1.2.0, check it out in a separate work tree and copy this directory into it:
 

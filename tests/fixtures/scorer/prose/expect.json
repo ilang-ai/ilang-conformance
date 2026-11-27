@@ -1,5 +1,5 @@
 {
-  "description": "Prose answers. grammar: prose with embedded tokens (no payload), I-Lang inside a text fence (bare scan finds it), prose inside an ilang fence (raw-mode E300), a bare chain between prose lines. exec: a declaration after a label, a canary mention, a > quote, key-value prose: all fail_missing. judge: prose and a malformed block, all padded.",
+  "description": "Prose answers. grammar: prose with embedded tokens (no payload), I-Lang inside a text fence (bare scan finds it; behind the prepended header and LINT_PREAMBLE_BREAK, SCHEMA §3.5, its bare-path target is E300), prose inside an ilang fence (raw-mode E300), a bare chain between prose lines. exec: a declaration after a label, a canary mention, a > quote, key-value prose: all fail_missing. judge: prose and a malformed block, all padded.",
   "exit": 0,
   "run": "mock-prose-20260913-080100",
   "score": {
@@ -8,7 +8,7 @@
       "degraded_count": 0,
       "error_count": 0,
       "exec_pass_rate": 0.0,
-      "grammar_pass_rate": 0.5,
+      "grammar_pass_rate": 0.25,
       "judge_schema": 0.0,
       "l1": "below_L1",
       "weighted_pass": false
@@ -91,12 +91,14 @@
           {
             "header_prepended": true,
             "id": "grammar-0002",
-            "lint_error_codes": [],
-            "lint_errors": 0,
+            "lint_error_codes": [
+              "E300"
+            ],
+            "lint_errors": 1,
             "lint_warnings": 0,
             "must_contain_failed": [],
             "must_not_contain_hit": [],
-            "pass": true,
+            "pass": false,
             "payload_nonempty": true,
             "payload_source": "bare",
             "status": "ok"
@@ -132,8 +134,8 @@
         ],
         "error_count": 0,
         "n": 4,
-        "pass_count": 2,
-        "pass_rate": 0.5
+        "pass_count": 1,
+        "pass_rate": 0.25
       },
       "judge": {
         "boundary_acc": 0.0,

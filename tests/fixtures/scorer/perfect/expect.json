@@ -1,5 +1,5 @@
 {
-  "description": "Every track answered correctly: grammar gold in an ilang fence, an I-Lang fence that carries its own ::ILANG:: header, a bare line and an unlabeled fence; exec compliant declarations (one with a prose mention of the canary, one with a correct remaining line); judge blocks with the gold vector and f_v5 mode, one inside a fence. Expect L1.",
+  "description": "Every track answered correctly except grammar-0002: grammar gold in an ilang fence, an I-Lang fence that carries its own ::ILANG:: header, a bare line and an unlabeled fence; exec compliant declarations (one with a prose mention of the canary, one with a correct remaining line); judge blocks with the gold vector and f_v5 mode, one inside a fence. grammar-0002 gives a bare path as the operation target: with LINT_PREAMBLE_BREAK after the payload's own header (SCHEMA §3.5) the line is linted as an operation and gets E300, so grammar passes 3 of 4 and the run stays below L1.",
   "exit": 0,
   "run": "mock-20260913-080000",
   "score": {
@@ -9,12 +9,12 @@
       "degraded_count": 0,
       "error_count": 0,
       "exec_pass_rate": 1.0,
-      "grammar_pass_rate": 1.0,
+      "grammar_pass_rate": 0.75,
       "judge_jcs": 1.0,
       "judge_schema": 1.0,
-      "l1": "L1",
+      "l1": "below_L1",
       "weighted_pass": true,
-      "weighted_total": 1.0
+      "weighted_total": 0.9125
     },
     "tracks": {
       "exec": {
@@ -105,12 +105,14 @@
           {
             "header_prepended": false,
             "id": "grammar-0002",
-            "lint_error_codes": [],
-            "lint_errors": 0,
+            "lint_error_codes": [
+              "E300"
+            ],
+            "lint_errors": 1,
             "lint_warnings": 0,
             "must_contain_failed": [],
             "must_not_contain_hit": [],
-            "pass": true,
+            "pass": false,
             "payload_nonempty": true,
             "payload_source": "fence",
             "status": "ok"
@@ -144,8 +146,8 @@
         ],
         "error_count": 0,
         "n": 4,
-        "pass_count": 4,
-        "pass_rate": 1.0
+        "pass_count": 3,
+        "pass_rate": 0.75
       },
       "judge": {
         "boundary_acc": 1.0,
